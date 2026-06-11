@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;background:#eef1f5;}
+    @keyframes wlFade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes wlPop{from{opacity:0;transform:translate(-50%,-92%) scale(.96);}to{opacity:1;transform:translate(-50%,-100%) scale(1);}}
+    @media print{
+      [data-print-hide]{display:none !important;}
+      html,body{background:#ffffff !important;}
+      [data-results]{padding:0 !important;}
+      [data-log-card]{break-inside:avoid;page-break-inside:avoid;box-shadow:none !important;}
+      [data-section]{break-inside:avoid;}
+      @page{size:landscape;margin:10mm;}
+    }
+  </style>
+</helmet>
+<div style="min-height:100vh;background:#eef1f5;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#11181c;">
+
+  <!-- ===================== FORM VIEW ===================== -->
+  <sc-if value="{{ showForm }}" hint-placeholder-val="{{ true }}">
+  <div style="min-height:100vh;display:flex;align-items:stretch;">
+    <!-- brand panel -->
+    <div style="flex:0 0 42%;max-width:560px;background:#0f2747;color:#eaf0f7;padding:48px 52px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px);background-size:34px 34px;"></div>
+      <div style="position:relative;display:flex;align-items:center;gap:11px;">
+        <div style="width:34px;height:34px;border-radius:9px;background:#f59e0b;display:flex;align-items:center;justify-content:center;color:#0f2747;font-weight:700;font-family:'IBM Plex Mono',monospace;font-size:16px;">W</div>
+        <div style="font-weight:700;font-size:17px;letter-spacing:0.2px;">Wayline</div>
+        <div style="font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:#7e93ab;border:1px solid #2a456a;padding:3px 8px;border-radius:20px;margin-left:4px;">HOS Planner</div>
+      </div>
+      <div style="position:relative;">
+        <div style="font-size:13px;letter-spacing:1.6px;text-transform:uppercase;color:#f59e0b;font-weight:600;margin-bottom:18px;">Plan &middot; Route &middot; Log</div>
+        <h1 style="font-size:40px;line-height:1.08;font-weight:700;margin:0 0 18px 0;color:#ffffff;letter-spacing:-0.5px;">From four inputs to a compliant route &amp; daily logs.</h1>
+        <p style="font-size:15px;line-height:1.6;color:#aebdcf;margin:0;max-width:90%;">Enter the trip, and Wayline maps the route with fuel, breaks and rest stops &mdash; then draws DOT-ready driver logs for every day.</p>
+      </div>
+      <div style="position:relative;display:flex;flex-direction:column;gap:9px;">
+        <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#7e93ab;font-weight:600;margin-bottom:2px;">Assumptions</div>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;">
+          <span style="font-size:12px;color:#cdd9e6;background:#16335a;border:1px solid #284a72;padding:5px 10px;border-radius:7px;">Property-carrying &middot; 70 hr / 8 day</span>
+          <span style="font-size:12px;color:#cdd9e6;background:#16335a;border:1px solid #284a72;padding:5px 10px;border-radius:7px;">1 hr pickup &amp; drop-off</span>
+          <span style="font-size:12px;color:#cdd9e6;background:#16335a;border:1px solid #284a72;padding:5px 10px;border-radius:7px;">Fuel every ~1,000 mi</span>
+          <span style="font-size:12px;color:#cdd9e6;background:#16335a;border:1px solid #284a72;padding:5px 10px;border-radius:7px;">No adverse driving</span>
+        </div>
+      </div>
+    </div>
+    <!-- form panel -->
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px 32px;">
+      <div style="width:100%;max-width:460px;">
+        <h2 style="font-size:24px;font-weight:700;margin:0 0 4px 0;letter-spacing:-0.3px;">Plan a trip</h2>
+        <p style="font-size:14px;color:#5b6770;margin:0 0 26px 0;">Four inputs. We handle the hours-of-service math.</p>
+
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <!-- current -->
+          <div style="position:relative;">
+            <label style="font-size:12px;font-weight:600;color:#3a444d;display:flex;align-items:center;gap:7px;margin-bottom:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#0f2747;"></span>Current location</label>
+            <input value="{{ fCurrent }}" onInput="{{ onInputCurrent }}" onFocus="{{ onFocusCurrent }}" onBlur="{{ onBlurField }}" placeholder="e.g. Dallas, TX" style="width:100%;padding:11px 13px;border:1px solid #d9dee4;border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:#fff;" style-focus="border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.15);" />
+            <sc-if value="{{ openCurrent }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;top:100%;left:0;right:0;margin-top:6px;background:#fff;border:1px solid #e3e7ec;border-radius:10px;box-shadow:0 12px 28px rgba(15,39,71,0.14);z-index:30;overflow:hidden;">
+                <sc-for list="{{ sugg }}" as="s" hint-placeholder-count="4">
+                  <div onMouseDown="{{ s.onPick }}" style="padding:10px 13px;font-size:13.5px;cursor:pointer;border-bottom:1px solid #f3f5f7;color:#2a323a;" style-hover="background:#fff8ee;">{{ s.name }}</div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <!-- pickup -->
+          <div style="position:relative;">
+            <label style="font-size:12px;font-weight:600;color:#3a444d;display:flex;align-items:center;gap:7px;margin-bottom:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#d97706;"></span>Pickup location</label>
+            <input value="{{ fPickup }}" onInput="{{ onInputPickup }}" onFocus="{{ onFocusPickup }}" onBlur="{{ onBlurField }}" placeholder="e.g. Oklahoma City, OK" style="width:100%;padding:11px 13px;border:1px solid #d9dee4;border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:#fff;" style-focus="border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.15);" />
+            <sc-if value="{{ openPickup }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;top:100%;left:0;right:0;margin-top:6px;background:#fff;border:1px solid #e3e7ec;border-radius:10px;box-shadow:0 12px 28px rgba(15,39,71,0.14);z-index:30;overflow:hidden;">
+                <sc-for list="{{ sugg }}" as="s" hint-placeholder-count="4">
+                  <div onMouseDown="{{ s.onPick }}" style="padding:10px 13px;font-size:13.5px;cursor:pointer;border-bottom:1px solid #f3f5f7;color:#2a323a;" style-hover="background:#fff8ee;">{{ s.name }}</div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <!-- dropoff -->
+          <div style="position:relative;">
+            <label style="font-size:12px;font-weight:600;color:#3a444d;display:flex;align-items:center;gap:7px;margin-bottom:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#16a34a;"></span>Drop-off location</label>
+            <input value="{{ fDropoff }}" onInput="{{ onInputDropoff }}" onFocus="{{ onFocusDropoff }}" onBlur="{{ onBlurField }}" placeholder="e.g. Denver, CO" style="width:100%;padding:11px 13px;border:1px solid #d9dee4;border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:#fff;" style-focus="border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.15);" />
+            <sc-if value="{{ openDropoff }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;top:100%;left:0;right:0;margin-top:6px;background:#fff;border:1px solid #e3e7ec;border-radius:10px;box-shadow:0 12px 28px rgba(15,39,71,0.14);z-index:30;overflow:hidden;">
+                <sc-for list="{{ sugg }}" as="s" hint-placeholder-count="4">
+                  <div onMouseDown="{{ s.onPick }}" style="padding:10px 13px;font-size:13.5px;cursor:pointer;border-bottom:1px solid #f3f5f7;color:#2a323a;" style-hover="background:#fff8ee;">{{ s.name }}</div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <!-- cycle -->
+          <div>
+            <label style="font-size:12px;font-weight:600;color:#3a444d;display:flex;align-items:center;gap:7px;margin-bottom:6px;"><span style="width:8px;height:8px;border-radius:50%;background:#5b6b80;"></span>Current cycle used <span style="color:#94a0ab;font-weight:400;">(hours, of 70)</span></label>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <input value="{{ fCycle }}" onInput="{{ onInputCycle }}" type="number" min="0" max="70" step="0.5" style="width:120px;padding:11px 13px;border:1px solid #d9dee4;border-radius:10px;font-size:14px;font-family:'IBM Plex Mono',monospace;outline:none;background:#fff;" style-focus="border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.15);" />
+              <span style="font-size:13px;color:#7e8893;">hrs already on the clock this cycle</span>
+            </div>
+          </div>
+        </div>
+
+        <button onClick="{{ planTrip }}" style="width:100%;margin-top:24px;padding:14px;background:#f59e0b;color:#0f2747;border:none;border-radius:11px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 4px 14px rgba(245,158,11,0.28);letter-spacing:0.2px;" style-hover="background:#e8920a;transform:translateY(-1px);">Plan trip &amp; build logs &rarr;</button>
+        <button onClick="{{ loadSample }}" style="width:100%;margin-top:10px;padding:11px;background:transparent;color:#3a536b;border:1px solid #d9dee4;border-radius:11px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="border-color:#0f2747;background:#fff;">Load sample haul &middot; Dallas &rarr; OKC &rarr; Denver</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ===================== RESULTS VIEW ===================== -->
+  <sc-if value="{{ showResults }}" hint-placeholder-val="{{ false }}">
+  <div data-results="" style="opacity:1;">
+    <!-- top bar -->
+    <div data-print-hide="" style="position:sticky;top:0;z-index:40;background:rgba(255,255,255,0.92);backdrop-filter:blur(8px);border-bottom:1px solid #e3e7ec;padding:13px 26px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
+      <div style="display:flex;align-items:center;gap:13px;min-width:0;">
+        <div style="width:30px;height:30px;border-radius:8px;background:#f59e0b;display:flex;align-items:center;justify-content:center;color:#0f2747;font-weight:700;font-family:'IBM Plex Mono',monospace;font-size:14px;flex:none;">W</div>
+        <div style="min-width:0;">
+          <div style="font-size:14px;font-weight:700;line-height:1.1;">Trip plan</div>
+          <div style="font-size:12px;color:#5b6770;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px;">
+            <span>{{ tCurrent }}</span><span style="color:#c0c7ce;">&rarr;</span><span style="color:#b45309;font-weight:600;">{{ tPickup }}</span><span style="color:#c0c7ce;">&rarr;</span><span style="color:#15803d;font-weight:600;">{{ tDropoff }}</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px;flex:none;">
+        <button onClick="{{ editTrip }}" style="padding:9px 15px;background:#fff;color:#2a323a;border:1px solid #d9dee4;border-radius:9px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;" style-hover="border-color:#0f2747;">Edit trip</button>
+        <button onClick="{{ printLogs }}" style="padding:9px 16px;background:#0f2747;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:7px;" style-hover="background:#16335a;"><span style="font-size:14px;">&#x2913;</span>Print / PDF</button>
+      </div>
+    </div>
+
+    <div style="max-width:1180px;margin:0 auto;padding:26px 26px 60px 26px;">
+
+      <!-- summary strip -->
+      <div data-section="" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px;">
+        <div style="grid-column:span 1;background:#0f2747;color:#fff;border-radius:13px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;">
+          <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#8ba0bb;font-weight:600;">Total miles</div>
+          <div style="font-size:27px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1;margin-top:8px;">{{ sMiles }}</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e3e7ec;border-radius:13px;padding:16px;">
+          <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#94a0ab;font-weight:600;">Drive time</div>
+          <div style="font-size:24px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1;margin-top:8px;color:#11181c;">{{ sDrive }}</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e3e7ec;border-radius:13px;padding:16px;">
+          <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#94a0ab;font-weight:600;">Log days</div>
+          <div style="font-size:24px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1;margin-top:8px;color:#11181c;">{{ sDays }}</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e3e7ec;border-radius:13px;padding:16px;">
+          <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#94a0ab;font-weight:600;">Fuel stops</div>
+          <div style="font-size:24px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1;margin-top:8px;color:#0d9488;">{{ sFuel }}</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e3e7ec;border-radius:13px;padding:16px;">
+          <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#94a0ab;font-weight:600;">30-min breaks</div>
+          <div style="font-size:24px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1;margin-top:8px;color:#8b5cf6;">{{ sBreaks }}</div>
+        </div>
+        <div style="background:#fff;border:1px solid #e3e7ec;border-radius:13px;padding:16px;">
+          <div style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#94a0ab;font-weight:600;">10-hr resets</div>
+          <div style="font-size:24px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1;margin-top:8px;color:#5b6b80;">{{ sResets }}</div>
+        </div>
+      </div>
+
+      <!-- map + cycle -->
+      <div data-section="" style="display:grid;grid-template-columns:1fr 300px;gap:16px;margin-bottom:24px;">
+        <!-- MAP -->
+        <div style="background:#fff;border:1px solid #e3e7ec;border-radius:14px;overflow:hidden;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #eef1f4;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="font-size:14px;font-weight:700;">Route &amp; stops</div>
+              <div data-print-hide="" style="font-size:10.5px;color:#94a0ab;background:#f4f6f8;border:1px solid #e8ecf0;padding:3px 8px;border-radius:6px;font-family:'IBM Plex Mono',monospace;">design preview &middot; live app = OSM tiles</div>
+            </div>
+            <button data-print-hide="" onClick="{{ toggleBreaks }}" style="display:flex;align-items:center;gap:8px;padding:6px 11px;border-radius:8px;border:1px solid {{ breaksBorder }};background:{{ breaksBg }};font-size:12px;font-weight:600;font-family:inherit;color:{{ breaksText }};cursor:pointer;">
+              <span style="width:9px;height:9px;border-radius:50%;background:#8b5cf6;"></span>{{ breaksLabel }}
+            </button>
+          </div>
+          <div style="position:relative;height:420px;background:#e9eef4;background-image:radial-gradient(circle at 1px 1px, rgba(15,39,71,0.07) 1px, transparent 0);background-size:22px 22px;">
+            <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(15,39,71,0.045) 1px,transparent 1px),linear-gradient(90deg,rgba(15,39,71,0.045) 1px,transparent 1px);background-size:88px 88px;"></div>
+            <!-- route -->
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;">
+              <polyline points="{{ routePts }}" fill="none" stroke="#ffffff" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+              <polyline points="{{ routePts }}" fill="none" stroke="#0f2747" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+            </svg>
+            <!-- pins -->
+            <sc-for list="{{ visibleMarkers }}" as="m" hint-placeholder-count="9">
+              <button onClick="{{ m.onClick }}" onMouseEnter="{{ m.onEnter }}" onMouseLeave="{{ m.onLeave }}" style="position:absolute;left:{{ m.left }};top:{{ m.top }};transform:translate(-50%,-50%);width:{{ m.size }};height:{{ m.size }};border-radius:50%;background:{{ m.color }};border:2.5px solid #fff;box-shadow:{{ m.shadow }};color:#fff;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:{{ m.font }};display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;z-index:{{ m.z }};" style-hover="filter:brightness(1.08);">{{ m.glyph }}</button>
+            </sc-for>
+            <!-- popup -->
+            <sc-if value="{{ hasActive }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;left:{{ aLeft }};top:{{ aTop }};transform:translate(-50%,-100%);margin-top:-12px;width:212px;background:#fff;border:1px solid #e3e7ec;border-radius:11px;box-shadow:0 14px 34px rgba(15,39,71,0.22);padding:12px 13px;z-index:60;pointer-events:none;">
+                <div style="display:inline-flex;align-items:center;gap:6px;font-size:10px;letter-spacing:0.8px;text-transform:uppercase;font-weight:700;color:{{ aColor }};margin-bottom:5px;"><span style="width:8px;height:8px;border-radius:50%;background:{{ aColor }};"></span>{{ aType }}</div>
+                <div style="font-size:14px;font-weight:700;color:#11181c;line-height:1.2;">{{ aTitle }}</div>
+                <div style="font-size:11.5px;color:#5b6770;font-family:'IBM Plex Mono',monospace;margin-top:3px;">{{ aSub }}</div>
+                <div style="font-size:12px;color:#3a444d;margin-top:7px;line-height:1.4;border-top:1px solid #f1f3f5;padding-top:7px;">{{ aReason }}</div>
+              </div>
+            </sc-if>
+            <!-- legend -->
+            <div data-print-hide="" style="position:absolute;left:14px;bottom:14px;display:flex;flex-wrap:wrap;gap:5px;max-width:62%;">
+              <span style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.94);border:1px solid #e3e7ec;border-radius:7px;padding:4px 8px;font-size:11px;color:#3a444d;font-weight:500;"><span style="width:8px;height:8px;border-radius:50%;background:#0f2747;"></span>Start</span>
+              <span style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.94);border:1px solid #e3e7ec;border-radius:7px;padding:4px 8px;font-size:11px;color:#3a444d;font-weight:500;"><span style="width:8px;height:8px;border-radius:50%;background:#d97706;"></span>Pickup</span>
+              <span style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.94);border:1px solid #e3e7ec;border-radius:7px;padding:4px 8px;font-size:11px;color:#3a444d;font-weight:500;"><span style="width:8px;height:8px;border-radius:50%;background:#16a34a;"></span>Drop-off</span>
+              <span style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.94);border:1px solid #e3e7ec;border-radius:7px;padding:4px 8px;font-size:11px;color:#3a444d;font-weight:500;"><span style="width:8px;height:8px;border-radius:50%;background:#5b6b80;"></span>10-hr reset</span>
+              <span style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.94);border:1px solid #e3e7ec;border-radius:7px;padding:4px 8px;font-size:11px;color:#3a444d;font-weight:500;"><span style="width:8px;height:8px;border-radius:50%;background:#0d9488;"></span>Fuel</span>
+              <span style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.94);border:1px solid #e3e7ec;border-radius:7px;padding:4px 8px;font-size:11px;color:#3a444d;font-weight:500;"><span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;"></span>30-min break</span>
+            </div>
+          </div>
+        </div>
+        <!-- cycle / legend side -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="background:#fff;border:1px solid #e3e7ec;border-radius:14px;padding:18px;">
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px;">70-hour cycle</div>
+            <div style="font-size:11.5px;color:#5b6770;margin-bottom:14px;">8-day rolling clock</div>
+            <div style="display:flex;align-items:flex-end;gap:6px;margin-bottom:6px;">
+              <div style="font-size:30px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:#0f2747;line-height:1;">{{ cycleAfter }}</div>
+              <div style="font-size:13px;color:#94a0ab;font-family:'IBM Plex Mono',monospace;margin-bottom:3px;">/ 70 hrs</div>
+            </div>
+            <div style="height:10px;border-radius:6px;background:#eef1f4;overflow:hidden;position:relative;margin-top:8px;">
+              <div style="position:absolute;left:0;top:0;bottom:0;width:{{ cycleStartPct }};background:#cbd3dc;"></div>
+              <div style="position:absolute;top:0;bottom:0;left:{{ cycleStartPct }};width:{{ cycleTripPct }};background:#f59e0b;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:9px;font-size:11px;">
+              <span style="display:flex;align-items:center;gap:5px;color:#5b6770;"><span style="width:8px;height:8px;border-radius:2px;background:#cbd3dc;"></span>Before {{ cycleStart }}h</span>
+              <span style="display:flex;align-items:center;gap:5px;color:#92500a;"><span style="width:8px;height:8px;border-radius:2px;background:#f59e0b;"></span>This trip +{{ cycleTrip }}h</span>
+            </div>
+            <div style="margin-top:14px;padding-top:13px;border-top:1px solid #f1f3f5;display:flex;align-items:center;gap:8px;font-size:12px;color:#15803d;font-weight:600;"><span style="width:18px;height:18px;border-radius:50%;background:#ecfdf3;border:1px solid #bbf0cd;display:flex;align-items:center;justify-content:center;font-size:11px;">&#10003;</span>{{ cycleRemain }} hrs remaining &middot; compliant</div>
+          </div>
+          <div style="background:#fff;border:1px solid #e3e7ec;border-radius:14px;padding:18px;">
+            <div style="font-size:13px;font-weight:700;margin-bottom:12px;">Trip events</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12.5px;"><span style="color:#5b6770;">34-hr restarts</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:#11181c;">{{ sRestarts }}</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12.5px;"><span style="color:#5b6770;">10-hr resets</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:#11181c;">{{ sResets }}</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12.5px;"><span style="color:#5b6770;">30-min breaks</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:#11181c;">{{ sBreaks }}</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12.5px;"><span style="color:#5b6770;">Fuel stops</span><span style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:#11181c;">{{ sFuel }}</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- daily logs -->
+      <div data-section="" style="display:flex;align-items:center;gap:12px;margin:4px 0 16px 0;">
+        <div style="font-size:18px;font-weight:700;letter-spacing:-0.2px;">Daily logs</div>
+        <div style="font-size:12px;color:#5b6770;background:#fff;border:1px solid #e3e7ec;padding:4px 10px;border-radius:20px;">{{ sDays }} sheets &middot; one per day</div>
+        <div style="flex:1;height:1px;background:#e3e7ec;"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:18px;">
+        <sc-for list="{{ days }}" as="d" hint-placeholder-count="3">
+          <div data-log-card="">
+            <dc-import name="LogSheet" day="{{ d }}" hint-size="100%,540px"></dc-import>
+          </div>
+        </sc-for>
+      </div>
+
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    view: 'form',
+    current: '', pickup: '', dropoff: '', cycle: '8',
+    openField: null, query: '',
+    selected: null, hovered: null,
+    showBreaks: true,
+  };
+
+  CITIES = [
+    'Dallas, TX', 'Oklahoma City, OK', 'Denver, CO', 'Liberal, KS', 'Limon, CO',
+    'Amarillo, TX', 'Wichita, KS', 'Fort Worth, TX', 'Tulsa, OK', 'Lamar, CO',
+    'Woodward, OK', 'Colorado Springs, CO', 'Pueblo, CO', 'Topeka, KS', 'Houston, TX',
+    'Kansas City, MO', 'Albuquerque, NM', 'Salt Lake City, UT', 'Cheyenne, WY', 'Garden City, KS',
+    'Springfield, MO', 'Little Rock, AR', 'El Paso, TX', 'Austin, TX', 'San Antonio, TX',
+  ];
+
+  getPlan() {
+    if (this._plan) return this._plan;
+    const days = [
+      {
+        dayNum: 1, totalDays: 3, date: 'Mon, Jun 15, 2026', from: 'Dallas, TX', to: 'Liberal, KS', miles: 495,
+        segments: [
+          { status: 'off', start: 0, end: 7 },
+          { status: 'onduty', start: 7, end: 7.5 },
+          { status: 'driving', start: 7.5, end: 11 },
+          { status: 'onduty', start: 11, end: 12 },
+          { status: 'driving', start: 12, end: 15 },
+          { status: 'off', start: 15, end: 15.5 },
+          { status: 'onduty', start: 15.5, end: 16 },
+          { status: 'driving', start: 16, end: 18.5 },
+          { status: 'onduty', start: 18.5, end: 19 },
+          { status: 'off', start: 19, end: 24 },
+        ],
+        remarks: [
+          { t: 7, label: 'Dallas, TX — pre-trip' },
+          { t: 11, label: 'Oklahoma City — pickup' },
+          { t: 15, label: 'Woodward, OK — break' },
+          { t: 15.5, label: 'fuel' },
+          { t: 19, label: 'Liberal, KS' },
+        ],
+      },
+      {
+        dayNum: 2, totalDays: 3, date: 'Tue, Jun 16, 2026', from: 'Liberal, KS', to: 'Limon, CO', miles: 275,
+        segments: [
+          { status: 'off', start: 0, end: 5 },
+          { status: 'onduty', start: 5, end: 5.5 },
+          { status: 'driving', start: 5.5, end: 8 },
+          { status: 'off', start: 8, end: 8.5 },
+          { status: 'onduty', start: 8.5, end: 9 },
+          { status: 'driving', start: 9, end: 11.5 },
+          { status: 'onduty', start: 11.5, end: 12 },
+          { status: 'sleeper', start: 12, end: 24 },
+        ],
+        remarks: [
+          { t: 5.5, label: 'Liberal, KS — depart' },
+          { t: 8, label: 'break' },
+          { t: 8.5, label: 'Lamar, CO — fuel' },
+          { t: 12, label: 'Limon, CO' },
+        ],
+      },
+      {
+        dayNum: 3, totalDays: 3, date: 'Wed, Jun 17, 2026', from: 'Limon, CO', to: 'Denver, CO', miles: 110,
+        segments: [
+          { status: 'sleeper', start: 0, end: 6 },
+          { status: 'onduty', start: 6, end: 6.5 },
+          { status: 'driving', start: 6.5, end: 8.5 },
+          { status: 'onduty', start: 8.5, end: 9.5 },
+          { status: 'off', start: 9.5, end: 24 },
+        ],
+        remarks: [
+          { t: 6.5, label: 'Limon, CO — depart' },
+          { t: 8.5, label: 'Denver — drop-off' },
+          { t: 9.5, label: 'off duty' },
+        ],
+      },
+    ];
+    const markers = [
+      { id: 's', type: 'Start', glyph: 'A', title: 'Dallas, TX', sub: 'Day 1 · 7:00 AM', reason: 'Current location — pre-trip inspection, then depart.', x: 74, y: 82, color: '#0f2747', tier: 'lg' },
+      { id: 'p', type: 'Pickup', glyph: 'P', title: 'Oklahoma City, OK', sub: 'Day 1 · 11:00 AM', reason: 'Pickup — 1 hr on-duty (not driving) for loading.', x: 72, y: 66, color: '#d97706', tier: 'lg' },
+      { id: 'b1', type: '30-min break', glyph: 'B', title: 'Woodward, OK', sub: 'Day 1 · 3:00 PM', reason: 'Required 30-min break before 8 hrs of driving.', x: 64, y: 60, color: '#8b5cf6', tier: 'sm' },
+      { id: 'f1', type: 'Fuel', glyph: 'F', title: 'Woodward, OK', sub: 'Day 1 · 3:30 PM', reason: 'Fueling stop — scheduled roughly every 1,000 mi.', x: 60, y: 57, color: '#0d9488', tier: 'md' },
+      { id: 'r1', type: '10-hr reset', glyph: 'R', title: 'Liberal, KS', sub: 'Day 1 7:00 PM → Day 2 5:00 AM', reason: '10-hr off-duty reset overnight (crosses midnight).', x: 56, y: 50, color: '#5b6b80', tier: 'md' },
+      { id: 'b2', type: '30-min break', glyph: 'B', title: 'near Springfield, CO', sub: 'Day 2 · 8:00 AM', reason: 'Second 30-min break to reset the 8-hr driving window.', x: 46, y: 44, color: '#8b5cf6', tier: 'sm' },
+      { id: 'f2', type: 'Fuel', glyph: 'F', title: 'Lamar, CO', sub: 'Day 2 · 8:30 AM', reason: 'Fueling stop before the climb toward the Front Range.', x: 42, y: 42, color: '#0d9488', tier: 'md' },
+      { id: 'r2', type: '10-hr reset', glyph: 'R', title: 'Limon, CO', sub: 'Day 2 12:00 PM → Day 3 6:00 AM', reason: '10-hr off-duty / sleeper reset before final leg.', x: 32, y: 34, color: '#5b6b80', tier: 'md' },
+      { id: 'd', type: 'Drop-off', glyph: 'D', title: 'Denver, CO', sub: 'Day 3 · 8:30 AM', reason: 'Drop-off — 1 hr on-duty (not driving) for unloading.', x: 24, y: 28, color: '#16a34a', tier: 'lg' },
+    ];
+    this._plan = {
+      days, markers,
+      summary: { miles: 880, drive: '16h 00m', days: 3, fuel: 2, breaks: 2, resets: 2, restarts: 0 },
+    };
+    return this._plan;
+  }
+
+  // ---- form handlers ----
+  setField(field, value) {
+    this.setState({ [field]: value, openField: field, query: value });
+  }
+  onFocus(field) {
+    this.setState({ openField: field, query: this.state[field] });
+  }
+  pick(field, name) {
+    this.setState({ [field]: name, openField: null });
+  }
+  blurField = () => { setTimeout(() => this.setState({ openField: null }), 140); };
+
+  planTrip = () => {
+    const s = this.state;
+    this.setState({
+      view: 'results',
+      current: s.current || 'Dallas, TX',
+      pickup: s.pickup || 'Oklahoma City, OK',
+      dropoff: s.dropoff || 'Denver, CO',
+      openField: null,
+    });
+  };
+  loadSample = () => {
+    this.setState({ view: 'results', current: 'Dallas, TX', pickup: 'Oklahoma City, OK', dropoff: 'Denver, CO', cycle: '8', openField: null });
+  };
+  editTrip = () => { this.setState({ view: 'form' }); };
+  printLogs = () => { window.print(); };
+  toggleBreaks = () => { this.setState((st) => ({ showBreaks: !st.showBreaks })); };
+
+  renderVals() {
+    const st = this.state;
+    const plan = this.getPlan();
+
+    // suggestions for the open field
+    const q = (st.query || '').toLowerCase();
+    let sugg = [];
+    if (st.openField) {
+      sugg = this.CITIES
+        .filter((c) => !q || c.toLowerCase().includes(q))
+        .slice(0, 6)
+        .map((name) => ({ name, onPick: () => this.pick(st.openField, name) }));
+    }
+
+    // markers with computed display props
+    const tierSize = { lg: 34, md: 25, sm: 17 };
+    const tierFont = { lg: '13px', md: '11px', sm: '9px' };
+    const tierZ = { lg: 22, md: 16, sm: 10 };
+    const visibleMarkers = plan.markers
+      .filter((m) => st.showBreaks || m.type !== '30-min break')
+      .map((m) => ({
+        ...m,
+        left: m.x + '%', top: m.y + '%',
+        size: tierSize[m.tier] + 'px',
+        font: tierFont[m.tier],
+        z: (st.selected === m.id || st.hovered === m.id) ? 50 : tierZ[m.tier],
+        shadow: (st.selected === m.id || st.hovered === m.id)
+          ? '0 0 0 4px ' + this.hexA(m.color, 0.25) + ', 0 6px 16px rgba(15,39,71,0.3)'
+          : '0 2px 6px rgba(15,39,71,0.25)',
+        onClick: () => this.setState((s) => ({ selected: s.selected === m.id ? null : m.id })),
+        onEnter: () => this.setState({ hovered: m.id }),
+        onLeave: () => this.setState({ hovered: null }),
+      }));
+
+    const activeId = st.hovered || st.selected;
+    const active = activeId ? plan.markers.find((m) => m.id === activeId) : null;
+
+    const routePts = plan.markers.map((m) => m.x + ',' + m.y).join(' ');
+
+    const cycleStart = parseFloat(st.cycle) || 0;
+    const cycleTrip = 21.5; // 16 drive + 5.5 on-duty
+    const cycleAfter = cycleStart + cycleTrip;
+    const breaksOn = st.showBreaks;
+
+    return {
+      showForm: st.view === 'form',
+      showResults: st.view === 'results',
+
+      // form
+      fCurrent: st.current, fPickup: st.pickup, fDropoff: st.dropoff, fCycle: st.cycle,
+      onInputCurrent: (e) => this.setField('current', e.target.value),
+      onInputPickup: (e) => this.setField('pickup', e.target.value),
+      onInputDropoff: (e) => this.setField('dropoff', e.target.value),
+      onInputCycle: (e) => this.setState({ cycle: e.target.value }),
+      onFocusCurrent: () => this.onFocus('current'),
+      onFocusPickup: () => this.onFocus('pickup'),
+      onFocusDropoff: () => this.onFocus('dropoff'),
+      onBlurField: this.blurField,
+      openCurrent: st.openField === 'current' && sugg.length > 0,
+      openPickup: st.openField === 'pickup' && sugg.length > 0,
+      openDropoff: st.openField === 'dropoff' && sugg.length > 0,
+      sugg,
+      planTrip: this.planTrip, loadSample: this.loadSample,
+
+      // results header
+      tCurrent: st.current, tPickup: st.pickup, tDropoff: st.dropoff,
+      editTrip: this.editTrip, printLogs: this.printLogs,
+
+      // summary
+      sMiles: plan.summary.miles.toLocaleString(),
+      sDrive: plan.summary.drive, sDays: plan.summary.days,
+      sFuel: plan.summary.fuel, sBreaks: plan.summary.breaks,
+      sResets: plan.summary.resets, sRestarts: plan.summary.restarts,
+
+      // map
+      routePts, visibleMarkers,
+      hasActive: !!active,
+      aLeft: active ? active.x + '%' : '50%',
+      aTop: active ? active.y + '%' : '50%',
+      aType: active ? active.type : '',
+      aTitle: active ? active.title : '',
+      aSub: active ? active.sub : '',
+      aReason: active ? active.reason : '',
+      aColor: active ? active.color : '#0f2747',
+      toggleBreaks: this.toggleBreaks,
+      breaksLabel: breaksOn ? 'Breaks shown' : 'Breaks hidden',
+      breaksBg: breaksOn ? '#f5f0ff' : '#fff',
+      breaksBorder: breaksOn ? '#ddd0fb' : '#d9dee4',
+      breaksText: breaksOn ? '#6d35d6' : '#7e8893',
+
+      // cycle
+      cycleStart: cycleStart, cycleTrip: cycleTrip,
+      cycleAfter: cycleAfter.toFixed(1),
+      cycleRemain: (70 - cycleAfter).toFixed(1),
+      cycleStartPct: (cycleStart / 70 * 100).toFixed(1) + '%',
+      cycleTripPct: (cycleTrip / 70 * 100).toFixed(1) + '%',
+
+      // logs
+      days: plan.days,
+    };
+  }
+
+  hexA(hex, a) {
+    const n = parseInt(hex.slice(1), 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+}
+</script>
+</body>
+</html>

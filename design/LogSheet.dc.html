@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</helmet>
+<div data-log-card="" style="background:#ffffff;border:1px solid #e3e7ec;border-radius:14px;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans-serif;box-shadow:0 1px 2px rgba(15,39,71,0.05);">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 22px;border-bottom:1px solid #eef1f4;background:linear-gradient(180deg,#fbfcfd,#ffffff);">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:11px;background:#0f2747;color:#ffffff;font-weight:700;font-size:13px;letter-spacing:0.5px;font-family:'IBM Plex Mono',monospace;flex:none;">D{{ dayNum }}</div>
+      <div>
+        <div style="font-size:9px;letter-spacing:1.4px;text-transform:uppercase;color:#94a0ab;font-weight:600;">Driver's Daily Log</div>
+        <div style="font-size:17px;font-weight:700;color:#11181c;line-height:1.2;margin-top:1px;white-space:nowrap;">Day {{ dayNum }} of {{ totalDays }} <span style="color:#cdd3d9;font-weight:500;">&middot;</span> {{ date }}</div>
+        <div style="font-size:12px;color:#5b6770;margin-top:3px;display:flex;align-items:center;gap:7px;">
+          <span>{{ from }}</span>
+          <span style="color:#b6bdc4;">&rarr;</span>
+          <span>{{ to }}</span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right;flex:none;">
+      <div style="font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:#94a0ab;font-weight:600;">Miles driving</div>
+      <div style="font-size:23px;font-weight:700;color:#0f2747;font-family:'IBM Plex Mono',monospace;line-height:1.1;">{{ miles }}</div>
+    </div>
+  </div>
+  <div style="padding:14px 18px 8px 18px;">
+    {{ grid }}
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:9px;padding:8px 22px 18px 22px;border-top:1px solid #f1f3f5;">
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #eef1f4;border-radius:9px;background:#fbfcfd;flex:1 1 120px;">
+      <span style="width:10px;height:10px;border-radius:3px;background:#64748b;flex:none;"></span>
+      <span style="font-size:11px;color:#5b6770;flex:1;">Off Duty</span>
+      <span style="font-size:13px;font-weight:600;color:#11181c;font-family:'IBM Plex Mono',monospace;">{{ offT }}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #eef1f4;border-radius:9px;background:#fbfcfd;flex:1 1 120px;">
+      <span style="width:10px;height:10px;border-radius:3px;background:#7c5cff;flex:none;"></span>
+      <span style="font-size:11px;color:#5b6770;flex:1;">Sleeper</span>
+      <span style="font-size:13px;font-weight:600;color:#11181c;font-family:'IBM Plex Mono',monospace;">{{ sleeperT }}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #f6e2c4;border-radius:9px;background:#fff8ee;flex:1 1 120px;">
+      <span style="width:10px;height:10px;border-radius:3px;background:#d97706;flex:none;"></span>
+      <span style="font-size:11px;color:#92500a;flex:1;font-weight:600;">Driving</span>
+      <span style="font-size:13px;font-weight:700;color:#b45309;font-family:'IBM Plex Mono',monospace;">{{ drivingT }}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #eef1f4;border-radius:9px;background:#fbfcfd;flex:1 1 120px;">
+      <span style="width:10px;height:10px;border-radius:3px;background:#0d9488;flex:none;"></span>
+      <span style="font-size:11px;color:#5b6770;flex:1;">On Duty</span>
+      <span style="font-size:13px;font-weight:600;color:#11181c;font-family:'IBM Plex Mono',monospace;">{{ ondutyT }}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 13px;border-radius:9px;flex:1 1 120px;border:1px solid {{ validBorder }};background:{{ validBg }};">
+      <span style="font-size:11px;flex:1;font-weight:600;color:{{ validText }};">Total {{ validIcon }}</span>
+      <span style="font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ validText }};">{{ totalT }}</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1000,&quot;height&quot;:560},&quot;day&quot;:{&quot;editor&quot;:null,&quot;default&quot;:{&quot;dayNum&quot;:1,&quot;totalDays&quot;:3,&quot;date&quot;:&quot;Mon, Jun 15, 2026&quot;,&quot;from&quot;:&quot;Dallas, TX&quot;,&quot;to&quot;:&quot;Liberal, KS&quot;,&quot;miles&quot;:495,&quot;segments&quot;:[{&quot;status&quot;:&quot;off&quot;,&quot;start&quot;:0,&quot;end&quot;:7},{&quot;status&quot;:&quot;onduty&quot;,&quot;start&quot;:7,&quot;end&quot;:7.5},{&quot;status&quot;:&quot;driving&quot;,&quot;start&quot;:7.5,&quot;end&quot;:11},{&quot;status&quot;:&quot;onduty&quot;,&quot;start&quot;:11,&quot;end&quot;:12},{&quot;status&quot;:&quot;driving&quot;,&quot;start&quot;:12,&quot;end&quot;:15},{&quot;status&quot;:&quot;off&quot;,&quot;start&quot;:15,&quot;end&quot;:15.5},{&quot;status&quot;:&quot;onduty&quot;,&quot;start&quot;:15.5,&quot;end&quot;:16},{&quot;status&quot;:&quot;driving&quot;,&quot;start&quot;:16,&quot;end&quot;:18.5},{&quot;status&quot;:&quot;onduty&quot;,&quot;start&quot;:18.5,&quot;end&quot;:19},{&quot;status&quot;:&quot;off&quot;,&quot;start&quot;:19,&quot;end&quot;:24}],&quot;remarks&quot;:[{&quot;t&quot;:7,&quot;label&quot;:&quot;Dallas, TX — pre-trip&quot;},{&quot;t&quot;:11,&quot;label&quot;:&quot;Oklahoma City — pickup&quot;},{&quot;t&quot;:15,&quot;label&quot;:&quot;Woodward, OK — break&quot;},{&quot;t&quot;:15.5,&quot;label&quot;:&quot;fuel&quot;},{&quot;t&quot;:19,&quot;label&quot;:&quot;Liberal, KS&quot;}]}}}">
+class Component extends DCLogic {
+  renderVals() {
+    const h = React.createElement;
+    const SAMPLE = {
+      dayNum: 1, totalDays: 3, date: 'Mon, Jun 15, 2026', from: 'Dallas, TX', to: 'Liberal, KS', miles: 495,
+      segments: [
+        { status: 'off', start: 0, end: 7 },
+        { status: 'onduty', start: 7, end: 7.5 },
+        { status: 'driving', start: 7.5, end: 11 },
+        { status: 'onduty', start: 11, end: 12 },
+        { status: 'driving', start: 12, end: 15 },
+        { status: 'off', start: 15, end: 15.5 },
+        { status: 'onduty', start: 15.5, end: 16 },
+        { status: 'driving', start: 16, end: 18.5 },
+        { status: 'onduty', start: 18.5, end: 19 },
+        { status: 'off', start: 19, end: 24 },
+      ],
+      remarks: [
+        { t: 7, label: 'Dallas, TX — pre-trip' },
+        { t: 11, label: 'Oklahoma City — pickup' },
+        { t: 15, label: 'Woodward, OK — break' },
+        { t: 15.5, label: 'fuel' },
+        { t: 19, label: 'Liberal, KS' },
+      ],
+    };
+    const day = this.props.day || SAMPLE;
+    const segs = day.segments || [];
+    const remarks = day.remarks || [];
+
+    const fmtHrs = (v) => {
+      const whole = Math.floor(v + 1e-9);
+      const mins = Math.round((v - whole) * 60);
+      return whole + ':' + String(mins).padStart(2, '0');
+    };
+
+    // ---- geometry ----
+    const W = 980, H = 272;
+    const gridLeft = 170, hourW = 30, rowH = 36, gridTop = 42;
+    const gridW = hourW * 24;            // 720
+    const gridRight = gridLeft + gridW;  // 890
+    const gridBottom = gridTop + rowH * 4;
+
+    const rows = [
+      { key: 'off', label: 'Off Duty', color: '#64748b' },
+      { key: 'sleeper', label: 'Sleeper Berth', color: '#7c5cff' },
+      { key: 'driving', label: 'Driving', color: '#d97706' },
+      { key: 'onduty', label: 'On Duty (ND)', color: '#0d9488' },
+    ];
+    const rowIndex = { off: 0, sleeper: 1, driving: 2, onduty: 3 };
+    const x = (t) => gridLeft + t * hourW;
+    const yMid = (r) => gridTop + r * rowH + rowH / 2;
+
+    const totals = { off: 0, sleeper: 0, driving: 0, onduty: 0 };
+    segs.forEach((s) => { totals[s.status] += (s.end - s.start); });
+    const grand = totals.off + totals.sleeper + totals.driving + totals.onduty;
+    const valid = Math.abs(grand - 24) < 1e-6;
+
+    const kids = [];
+
+    // row background bands
+    rows.forEach((r, i) => {
+      kids.push(h('rect', { key: 'band' + i, x: gridLeft, y: gridTop + i * rowH, width: gridW, height: rowH, fill: i % 2 ? '#fafbfc' : '#ffffff' }));
+    });
+
+    // amber highlight under driving segments
+    segs.filter((s) => s.status === 'driving').forEach((s, i) => {
+      kids.push(h('rect', { key: 'drv' + i, x: x(s.start), y: gridTop + 2 * rowH + 2, width: (s.end - s.start) * hourW, height: rowH - 4, fill: 'rgba(217,119,6,0.10)' }));
+    });
+
+    // 15-min vertical gridlines (hour lines darker)
+    for (let i = 0; i <= 96; i++) {
+      const xx = gridLeft + (i / 4) * hourW;
+      const isHour = i % 4 === 0;
+      const isHalf = i % 2 === 0;
+      kids.push(h('line', { key: 'v' + i, x1: xx, y1: gridTop, x2: xx, y2: gridBottom, stroke: isHour ? '#c4ccd3' : (isHalf ? '#e6eaee' : '#f0f3f6'), strokeWidth: 1 }));
+    }
+    // horizontal separators
+    for (let i = 0; i <= 4; i++) {
+      kids.push(h('line', { key: 'hs' + i, x1: gridLeft, y1: gridTop + i * rowH, x2: gridRight, y2: gridTop + i * rowH, stroke: '#c4ccd3', strokeWidth: 1 }));
+    }
+
+    // hour labels (top)
+    for (let i = 0; i <= 24; i++) {
+      const lab = (i === 0 || i === 24) ? 'Mid' : (i === 12 ? 'Noon' : String(i < 12 ? i : i - 12));
+      const emph = (i === 0 || i === 12 || i === 24);
+      kids.push(h('text', { key: 'hl' + i, x: x(i), y: gridTop - 10, textAnchor: 'middle', fontSize: emph ? 9.5 : 9, fill: emph ? '#5b6770' : '#9aa4ad', fontFamily: "'IBM Plex Mono',monospace", fontWeight: emph ? 700 : 400 }, lab));
+    }
+
+    // row labels + swatches + right total cells
+    rows.forEach((r, i) => {
+      kids.push(h('rect', { key: 'sw' + i, x: 16, y: yMid(i) - 5, width: 10, height: 10, rx: 2.5, fill: r.color }));
+      kids.push(h('text', { key: 'rl' + i, x: 33, y: yMid(i) + 4, textAnchor: 'start', fontSize: 11, fontWeight: 600, fill: '#3a444d', fontFamily: "'IBM Plex Sans',sans-serif" }, r.label));
+      // right edge total
+      kids.push(h('text', { key: 'rt' + i, x: gridRight + 18, y: yMid(i) + 4, fontSize: 12, fontWeight: r.key === 'driving' ? 700 : 600, fill: r.key === 'driving' ? '#b45309' : '#11181c', fontFamily: "'IBM Plex Mono',monospace" }, fmtHrs(totals[r.key] || 0)));
+    });
+    // totals header + grand total
+    kids.push(h('text', { key: 'th', x: gridRight + 18, y: gridTop - 10, fontSize: 8.5, fill: '#9aa4ad', fontFamily: "'IBM Plex Sans',sans-serif", fontWeight: 600, letterSpacing: 0.6 }, 'TOTAL'));
+    kids.push(h('line', { key: 'tdiv', x1: gridRight + 14, y1: gridBottom + 6, x2: W - 8, y2: gridBottom + 6, stroke: '#e3e7ec', strokeWidth: 1 }));
+    kids.push(h('text', { key: 'tg', x: gridRight + 18, y: gridBottom + 21, fontSize: 12.5, fontWeight: 700, fill: valid ? '#15803d' : '#dc2626', fontFamily: "'IBM Plex Mono',monospace" }, fmtHrs(grand)));
+
+    // status duty line (navy, crisp)
+    const pts = [];
+    segs.forEach((s) => { const yy = yMid(rowIndex[s.status]); pts.push(x(s.start) + ',' + yy); pts.push(x(s.end) + ',' + yy); });
+    kids.push(h('polyline', { key: 'duty', points: pts.join(' '), fill: 'none', stroke: '#12243d', strokeWidth: 2.5, strokeLinejoin: 'round', strokeLinecap: 'round' }));
+
+    // remarks (ticks + rotated labels)
+    kids.push(h('text', { key: 'rmh', x: 16, y: gridBottom + 20, fontSize: 8.5, fill: '#9aa4ad', fontFamily: "'IBM Plex Sans',sans-serif", fontWeight: 600, letterSpacing: 0.6 }, 'REMARKS'));
+    remarks.forEach((rm, i) => {
+      const xx = x(rm.t);
+      kids.push(h('line', { key: 'rk' + i, x1: xx, y1: gridBottom, x2: xx, y2: gridBottom + 11, stroke: '#aab2ba', strokeWidth: 1 }));
+      kids.push(h('circle', { key: 'rc' + i, cx: xx, cy: gridBottom, r: 2, fill: '#12243d' }));
+      kids.push(h('text', { key: 'rt2' + i, x: xx + 3, y: gridBottom + 16, fontSize: 9, fill: '#5b6770', fontFamily: "'IBM Plex Mono',monospace", transform: 'rotate(34 ' + (xx + 3) + ' ' + (gridBottom + 16) + ')' }, rm.label));
+    });
+
+    const grid = h('svg', { viewBox: '0 0 ' + W + ' ' + H, width: '100%', style: { display: 'block', overflow: 'visible' } }, kids);
+
+    return {
+      grid,
+      dayNum: day.dayNum, totalDays: day.totalDays || 3, date: day.date,
+      from: day.from, to: day.to, miles: day.miles,
+      offT: fmtHrs(totals.off), sleeperT: fmtHrs(totals.sleeper),
+      drivingT: fmtHrs(totals.driving), ondutyT: fmtHrs(totals.onduty),
+      totalT: fmtHrs(grand),
+      validBg: valid ? '#ecfdf3' : '#fef2f2',
+      validBorder: valid ? '#bbf0cd' : '#fecaca',
+      validText: valid ? '#15803d' : '#dc2626',
+      validIcon: valid ? '\u2713' : '\u26A0',
+    };
+  }
+}
+</script>
+</body>
+</html>

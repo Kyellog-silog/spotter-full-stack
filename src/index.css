@@ -1,0 +1,59 @@
+@import "leaflet/dist/leaflet.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    @apply bg-ink text-paper font-body;
+  }
+}
+
+@layer components {
+  /* Subtle dotted texture for the app chrome, like a worn dispatch desk */
+  .chrome-grain {
+    background-image: radial-gradient(
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px
+    );
+    background-size: 18px 18px;
+  }
+
+  .field-label {
+    @apply font-mono text-[11px] uppercase tracking-[0.14em] text-ink-500;
+  }
+
+  .input {
+    @apply w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2.5
+           font-body text-paper placeholder:text-ink-500
+           focus:border-signal focus:outline-none focus:ring-1 focus:ring-signal;
+  }
+}
+
+/* Leaflet tiles read a touch dark by default on a dark page; keep them honest */
+.leaflet-container {
+  background: #0e1722;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* Print: show only the log sheets, on white, full width */
+@media print {
+  body {
+    background: #fff;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-area {
+    display: block !important;
+  }
+  .log-sheet {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 18px;
+  }
+}
