@@ -36,7 +36,7 @@ export default function RouteMap({ trip }) {
       <MapContainer
         center={line[0]}
         zoom={6}
-        scrollWheelZoom={false}
+        scrollWheelZoom={true}
         style={{ height: "100%", width: "100%" }}
       >
         <TileLayer

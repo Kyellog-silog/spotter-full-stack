@@ -132,6 +132,12 @@ See the `eld-frontend/` scaffold. Runs standalone on mock data until the backend
 - [x] Swap mock client for real `POST /api/plan-trip/` (VITE_USE_MOCK=true for offline demo)
 - [ ] Address autocomplete against `GET /api/geocode/` (optional)
 
+### UX polish (requested)
+- [x] RouteMap: enable scroll-wheel zoom
+- [x] LogSheet: click a sheet to enlarge it (zoomable modal: scroll / -+ buttons / keyboard,
+      Esc to close) so the user can zoom in/out on the 24-hour grid
+- [x] LogSheet: "Projected log — generated from HOS rules" label on each sheet header
+
 Libraries: react, react-dom, react-leaflet, leaflet, react-hook-form, tailwindcss.
 Optional: @tanstack/react-query, jsPDF + html2canvas for a real PDF download.
 
