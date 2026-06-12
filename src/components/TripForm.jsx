@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { useForm } from "react-hook-form";
 
 const EXAMPLE = {
@@ -79,11 +80,11 @@ export default function TripForm({ onSubmit, loading }) {
   );
 }
 
-function Field({ label, error, ...rest }) {
+const Field = forwardRef(function Field({ label, error, ...rest }, ref) {
   return (
     <label className="block">
       <span className="field-label mb-1.5 block">{label}</span>
-      <input className="input" {...rest} />
+      <input ref={ref} className="input" {...rest} />
       {error && (
         <span className="mt-1 block font-mono text-[11px] text-signal-bright">
           {error.message}
@@ -91,4 +92,4 @@ function Field({ label, error, ...rest }) {
       )}
     </label>
   );
-}
+});
