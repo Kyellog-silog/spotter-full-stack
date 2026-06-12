@@ -7,36 +7,98 @@
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   body {
     @apply bg-ink text-paper font-body;
   }
+  /* Custom scrollbar for the dark chrome */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #32445a transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: #32445a;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: #46597280;
+    background-clip: content-box;
+  }
 }
 
 @layer components {
-  /* Subtle dotted texture for the app chrome, like a worn dispatch desk */
+  /* App chrome: a faint amber aurora at the top plus a subtle dot grid,
+     like a worn dispatch desk under a sodium lamp. */
   .chrome-grain {
+    background-color: theme(colors.ink.DEFAULT);
     background-image: radial-gradient(
-      rgba(255, 255, 255, 0.025) 1px,
-      transparent 1px
-    );
-    background-size: 18px 18px;
+        ellipse 90% 55% at 50% -15%,
+        rgba(245, 165, 36, 0.07),
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 70% 50% at 100% 0%,
+        rgba(56, 189, 248, 0.05),
+        transparent 55%
+      ),
+      radial-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 18px 18px;
+    background-attachment: fixed, fixed, fixed;
   }
 
   .field-label {
-    @apply font-mono text-[11px] uppercase tracking-[0.14em] text-ink-500;
+    @apply font-mono text-[11px] uppercase tracking-[0.16em] text-ink-500;
+  }
+
+  /* Card surface used across the chrome */
+  .card {
+    @apply rounded-xl border border-ink-700 bg-ink-800 shadow-card;
   }
 
   .input {
-    @apply w-full rounded-md border border-ink-600 bg-ink-800 px-3 py-2.5
-           font-body text-paper placeholder:text-ink-500
-           focus:border-signal focus:outline-none focus:ring-1 focus:ring-signal;
+    @apply w-full rounded-lg border border-ink-600 bg-ink-900/70 px-3 py-2.5
+           font-body text-paper placeholder:text-ink-500 transition
+           focus:border-signal focus:outline-none focus:ring-2 focus:ring-signal/30;
+  }
+
+  /* Primary action */
+  .btn-signal {
+    @apply rounded-lg bg-signal px-4 py-2.5 font-display text-sm font-700
+           uppercase tracking-wide text-ink transition
+           hover:bg-signal-bright hover:shadow-glow
+           disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:shadow-none;
+  }
+
+  /* Shimmering skeleton block */
+  .skeleton {
+    @apply relative overflow-hidden rounded-md bg-ink-700/70;
+  }
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.06),
+      transparent
+    );
   }
 }
 
 /* Leaflet tiles read a touch dark by default on a dark page; keep them honest */
 .leaflet-container {
   background: #0e1722;
+  font-family: "Inter", system-ui, sans-serif;
+}
+.leaflet-popup-content-wrapper,
+.leaflet-tooltip {
   font-family: "Inter", system-ui, sans-serif;
 }
 

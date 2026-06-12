@@ -58,20 +58,15 @@ export default function TripForm({ onSubmit, loading }) {
       />
 
       <div className="flex items-center gap-3 pt-1">
-        <button
-          type="submit"
-          disabled={loading}
-          className="flex-1 rounded-md bg-signal px-4 py-2.5 font-display text-sm font-700
-                     uppercase tracking-wide text-ink transition
-                     hover:bg-signal-bright disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <button type="submit" disabled={loading} className="btn-signal flex-1">
           {loading ? "Planning route..." : "Plan trip"}
         </button>
         <button
           type="button"
           onClick={() => reset(EXAMPLE)}
-          className="rounded-md border border-ink-600 px-3 py-2.5 font-mono text-xs
-                     uppercase tracking-wider text-ink-500 transition hover:text-paper"
+          className="rounded-lg border border-ink-600 px-3 py-2.5 font-mono text-xs
+                     uppercase tracking-wider text-ink-500 transition
+                     hover:border-signal hover:text-signal"
         >
           Example
         </button>

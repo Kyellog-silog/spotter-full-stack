@@ -32,7 +32,7 @@ export default function RouteMap({ trip }) {
   const bounds = line.map(([lat, lng]) => [lat, lng]);
 
   return (
-    <div className="h-[420px] overflow-hidden rounded-lg border border-ink-700">
+    <div className="h-[420px] overflow-hidden rounded-xl border border-ink-700 shadow-card">
       <MapContainer
         center={line[0]}
         zoom={6}
@@ -47,7 +47,11 @@ export default function RouteMap({ trip }) {
 
         <Polyline
           positions={line}
-          pathOptions={{ color: "#E8A317", weight: 4, opacity: 0.9 }}
+          pathOptions={{ color: "#0A111B", weight: 7, opacity: 0.35 }}
+        />
+        <Polyline
+          positions={line}
+          pathOptions={{ color: "#F5A524", weight: 4, opacity: 0.95 }}
         />
 
         {/* Intermediate stops: fuel, rests, restarts */}
@@ -60,7 +64,7 @@ export default function RouteMap({ trip }) {
                 key={`stop-${i}`}
                 center={[s.lat, s.lng]}
                 radius={6}
-                pathOptions={{ color: "#16202E", weight: 2, fillColor: meta.color, fillOpacity: 1 }}
+                pathOptions={{ color: "#0A111B", weight: 2, fillColor: meta.color, fillOpacity: 1 }}
               >
                 <Tooltip direction="top">{s.label}</Tooltip>
               </CircleMarker>
@@ -73,7 +77,7 @@ export default function RouteMap({ trip }) {
             key={`end-${i}`}
             center={[p.lat, p.lng]}
             radius={9}
-            pathOptions={{ color: "#16202E", weight: 2, fillColor: "#F6B82E", fillOpacity: 1 }}
+            pathOptions={{ color: "#0A111B", weight: 2.5, fillColor: "#FFB840", fillOpacity: 1 }}
           >
             <Tooltip direction="top" permanent={false}>
               {p.role}: {p.label}

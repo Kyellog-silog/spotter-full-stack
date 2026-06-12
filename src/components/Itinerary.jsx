@@ -16,7 +16,7 @@ export default function Itinerary({ trip }) {
   const stops = trip.stops;
 
   return (
-    <div className="mt-4 rounded-lg border border-ink-700 bg-ink-800 p-4">
+    <div className="card mt-4 p-4">
       {/* Legs: the driving instructions */}
       <div className="field-label mb-2">Route legs</div>
       <ul className="mb-4 space-y-1.5">

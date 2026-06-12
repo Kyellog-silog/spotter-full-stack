@@ -1,16 +1,41 @@
-import { useState } from "react";
-import { planTrip } from "./api/client.js";
+import { useEffect, useRef, useState } from "react";
+import { planTrip, pingBackend, NEEDS_WARMUP } from "./api/client.js";
 import TripForm from "./components/TripForm.jsx";
 import RouteMap from "./components/RouteMap.jsx";
 import TripSummary from "./components/TripSummary.jsx";
 import Itinerary from "./components/Itinerary.jsx";
 import LogSheet from "./components/LogSheet.jsx";
+import ResultsSkeleton from "./components/Skeletons.jsx";
 import { STOP_META } from "./lib/status.js";
 
 export default function App() {
   const [status, setStatus] = useState("idle"); // idle | loading | done | error
   const [trip, setTrip] = useState(null);
   const [error, setError] = useState("");
+  // backend wake state: "ready" (mock/local) | "warming" | "online"
+  const [backend, setBackend] = useState(NEEDS_WARMUP ? "warming" : "ready");
+
+  // Warm the (sleeping) Render backend as soon as the app loads, so by the
+  // time the user submits, the dyno is already up.
+  useEffect(() => {
+    if (!NEEDS_WARMUP) return;
+    const controller = new AbortController();
+    let cancelled = false;
+    (async () => {
+      for (let i = 0; i < 24 && !cancelled; i++) {
+        const ok = await pingBackend(controller.signal);
+        if (ok) {
+          if (!cancelled) setBackend("online");
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 2500));
+      }
+    })();
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, []);
 
   async function handleSubmit(input) {
     setStatus("loading");
@@ -19,6 +44,7 @@ export default function App() {
       const result = await planTrip(input);
       setTrip(result);
       setStatus("done");
+      setBackend((b) => (b === "warming" ? "online" : b));
     } catch (e) {
       setError(e.message || "Something went wrong.");
       setStatus("error");
@@ -27,12 +53,12 @@ export default function App() {
 
   return (
     <div className="chrome-grain min-h-screen">
-      <Header />
+      <Header backend={backend} />
 
       <main className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[340px_1fr] lg:px-6">
         {/* Sidebar: form */}
         <aside className="no-print lg:sticky lg:top-6 lg:self-start">
-          <div className="rounded-lg border border-ink-700 bg-ink-800 p-5">
+          <div className="card p-5">
             <h2 className="mb-1 font-display text-sm font-700 uppercase tracking-wide text-paper">
               Trip details
             </h2>
@@ -47,32 +73,78 @@ export default function App() {
         {/* Results */}
         <section className="min-w-0">
           {status === "idle" && <EmptyState />}
-          {status === "loading" && <LoadingState />}
+          {status === "loading" && <LoadingState backend={backend} />}
           {status === "error" && <ErrorState message={error} />}
           {status === "done" && trip && <Results trip={trip} />}
         </section>
       </main>
+
+      <Footer />
     </div>
   );
 }
 
-function Header() {
+function Header({ backend }) {
   return (
-    <header className="no-print border-b border-ink-700 bg-ink-800/80 backdrop-blur">
+    <header className="no-print sticky top-0 z-30 border-b border-ink-700 bg-ink/70 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 lg:px-6">
-        <div className="flex items-baseline gap-2.5">
-          <span className="font-display text-xl font-800 tracking-tight text-paper">
-            MILEPOST
-          </span>
-          <span className="hidden font-mono text-[11px] uppercase tracking-[0.18em] text-signal sm:inline">
-            HOS Trip Planner
-          </span>
+        <div className="flex items-center gap-3">
+          <Logo />
+          <div className="flex items-baseline gap-2.5">
+            <span className="font-display text-xl font-800 tracking-tight text-paper">
+              MILEPOST
+            </span>
+            <span className="hidden font-mono text-[11px] uppercase tracking-[0.18em] text-signal sm:inline">
+              HOS Trip Planner
+            </span>
+          </div>
         </div>
-        <span className="font-mono text-[11px] text-ink-500">
-          Route &middot; ELD daily logs
-        </span>
+        <BackendBadge backend={backend} />
       </div>
     </header>
+  );
+}
+
+function Logo() {
+  return (
+    <span className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-signal to-signal-dim text-ink shadow-glow">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path
+          d="M3 17h2m14 0h2M5 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Zm10 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+        <path
+          d="M3 17V7a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v10m0-7h3.2a1 1 0 0 1 .8.4l2 2.6a1 1 0 0 1 .2.6V17"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
+  );
+}
+
+function BackendBadge({ backend }) {
+  const map = {
+    ready: { dot: "bg-sky", text: "Demo data", pulse: false },
+    warming: { dot: "bg-signal", text: "Waking server", pulse: true },
+    online: { dot: "bg-good", text: "Server online", pulse: false },
+  };
+  const s = map[backend] || map.ready;
+  return (
+    <span className="flex items-center gap-2 rounded-full border border-ink-700 bg-ink-800 px-3 py-1.5">
+      <span className="relative flex h-2 w-2">
+        {s.pulse && (
+          <span className={`absolute inline-flex h-full w-full animate-ping rounded-full ${s.dot} opacity-60`} />
+        )}
+        <span className={`relative inline-flex h-2 w-2 rounded-full ${s.dot}`} />
+      </span>
+      <span className="font-mono text-[11px] uppercase tracking-wider text-ink-500">
+        {s.text}
+      </span>
+    </span>
   );
 }
 
@@ -92,8 +164,9 @@ function Results({ trip }) {
           <SectionTitle>Daily log sheets</SectionTitle>
           <button
             onClick={() => window.print()}
-            className="no-print rounded-md border border-ink-600 px-3 py-1.5 font-mono
-                       text-xs uppercase tracking-wider text-ink-500 transition hover:text-paper"
+            className="no-print rounded-lg border border-ink-600 px-3 py-1.5 font-mono
+                       text-xs uppercase tracking-wider text-ink-500 transition
+                       hover:border-signal hover:text-signal"
           >
             Print logs
           </button>
@@ -110,7 +183,8 @@ function Results({ trip }) {
 
 function SectionTitle({ children }) {
   return (
-    <h2 className="mb-2.5 font-display text-xs font-700 uppercase tracking-[0.18em] text-ink-500">
+    <h2 className="mb-2.5 flex items-center gap-2 font-display text-xs font-700 uppercase tracking-[0.18em] text-ink-500">
+      <span className="h-3 w-1 rounded-full bg-signal" />
       {children}
     </h2>
   );
@@ -124,13 +198,13 @@ function MapLegend() {
     ["dropoff", "Drop-off"],
   ];
   return (
-    <div className="mt-4 rounded-lg border border-ink-700 bg-ink-800 p-4">
+    <div className="card mt-4 p-4">
       <div className="field-label mb-2.5">Map markers</div>
       <ul className="space-y-2">
         {items.map(([key, label]) => (
           <li key={key} className="flex items-center gap-2.5">
             <span
-              className="inline-block h-3 w-3 rounded-full border border-ink"
+              className="inline-block h-3 w-3 rounded-full border border-ink ring-2 ring-ink-900"
               style={{ background: STOP_META[key].color }}
             />
             <span className="font-mono text-xs text-paper">{label}</span>
@@ -143,7 +217,13 @@ function MapLegend() {
 
 function EmptyState() {
   return (
-    <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-lg border border-dashed border-ink-700 bg-ink-800/40 p-8 text-center">
+    <div className="flex h-full min-h-[440px] flex-col items-center justify-center rounded-xl border border-dashed border-ink-700 bg-ink-800/40 p-8 text-center">
+      <div className="mb-4 grid h-14 w-14 place-items-center rounded-2xl border border-ink-700 bg-ink-800 text-signal">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+          <circle cx="12" cy="11" r="2.2" stroke="currentColor" strokeWidth="1.7" />
+        </svg>
+      </div>
       <div className="font-display text-lg font-700 text-paper">
         Enter a trip to plan the route
       </div>
@@ -156,27 +236,62 @@ function EmptyState() {
   );
 }
 
-function LoadingState() {
+function LoadingState({ backend }) {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setElapsed((e) => e + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const cold = backend === "warming" || elapsed >= 4;
   return (
-    <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-lg border border-ink-700 bg-ink-800/40 p-8">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-ink-600 border-t-signal" />
-      <p className="mt-4 font-mono text-xs uppercase tracking-wider text-ink-500">
-        Plotting route and building logs
-      </p>
+    <div className="space-y-4">
+      {cold && (
+        <div className="flex items-start gap-3 rounded-xl border border-signal/30 bg-signal/5 px-4 py-3">
+          <span className="mt-0.5 h-4 w-4 flex-none animate-spin rounded-full border-2 border-signal/30 border-t-signal" />
+          <div>
+            <div className="font-display text-sm font-700 text-signal-bright">
+              Waking the server
+            </div>
+            <p className="mt-0.5 font-mono text-[11px] leading-relaxed text-ink-500">
+              The backend sleeps when idle on free hosting and can take up to ~50s to
+              wake on the first request. The page fills in automatically &mdash; no need
+              to resubmit.
+            </p>
+          </div>
+        </div>
+      )}
+      <ResultsSkeleton />
     </div>
   );
 }
 
 function ErrorState({ message }) {
   return (
-    <div className="rounded-lg border border-signal-dim bg-ink-800 p-6">
+    <div className="rounded-xl border border-signal-dim bg-ink-800 p-6">
       <div className="font-display text-sm font-700 uppercase tracking-wide text-signal-bright">
         Could not plan the trip
       </div>
       <p className="mt-2 font-mono text-xs text-ink-500">{message}</p>
       <p className="mt-2 font-body text-sm text-paper">
-        Check the locations and try again.
+        Check the locations and try again. If the server was asleep, a second attempt
+        usually goes through.
       </p>
     </div>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="no-print border-t border-ink-700/60 px-4 py-6 lg:px-6">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2">
+        <span className="font-mono text-[11px] text-ink-500">
+          Milepost &middot; HOS trip planner &amp; ELD log generator
+        </span>
+        <span className="font-mono text-[11px] text-ink-500">
+          Routing: OSRM &middot; Geocoding: Nominatim &middot; Tiles: OpenStreetMap
+        </span>
+      </div>
+    </footer>
   );
 }

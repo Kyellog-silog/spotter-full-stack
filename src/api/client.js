@@ -5,8 +5,24 @@ const API_BASE = import.meta.env.VITE_API_BASE || "";
 // Set VITE_USE_MOCK=true to demo offline without the backend.
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
 
+// True only when we talk to a real, separately-hosted backend (production on
+// Render). That host sleeps when idle, so the app warms it up on mount.
+export const NEEDS_WARMUP = !USE_MOCK && Boolean(API_BASE);
+
 function delay(ms) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+// Hit the health endpoint to wake a sleeping Render dyno. Returns true once
+// the backend answers. Never throws.
+export async function pingBackend(signal) {
+  if (USE_MOCK || !API_BASE) return true;
+  try {
+    const res = await fetch(`${API_BASE}/`, { method: "GET", signal });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 export async function planTrip(input) {
