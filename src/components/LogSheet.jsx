@@ -90,20 +90,21 @@ function LogGrid({ sheet, dateLabel }) {
         />
       ))}
 
-      {/* Quarter-hour ticks inside each row */}
+      {/* Quarter-hour ticks: rise up from the bottom line of each row,
+          like the real DOT form (the 30-min center tick is the tallest) */}
       {STATUS_ROWS.map((status) =>
         Array.from({ length: 24 }, (_, h) =>
           [15, 30, 45].map((q) => {
             const x = minsToX(h * 60 + q);
-            const top = rowTop(status);
+            const bottom = rowTop(status) + ROW_H;
             const len = q === 30 ? ROW_H * 0.42 : ROW_H * 0.24;
             return (
               <line
                 key={`tick-${status}-${h}-${q}`}
                 x1={x}
-                y1={top}
+                y1={bottom - len}
                 x2={x}
-                y2={top + len}
+                y2={bottom}
                 stroke="#2C6E9B"
                 strokeOpacity="0.35"
                 strokeWidth="0.5"
@@ -233,23 +234,106 @@ function LogGrid({ sheet, dateLabel }) {
   );
 }
 
-function SheetHeader({ sheet, index, dateLabel }) {
+// Day start/end cities, derived from the sheet's located segments — these are
+// the "From" / "To" boxes on the DOT form.
+function dayEndpoints(sheet) {
+  const locs = (sheet.segments || []).map((s) => s.location).filter(Boolean);
+  return { from: locs[0] || "", to: locs[locs.length - 1] || "" };
+}
+
+// One labeled box from the paper form: value sits on the rule, label beneath.
+// An empty value renders the blank rule a driver/carrier fills in by hand.
+function FormCell({ label, value, grow }) {
   return (
-    <div className="mb-3 flex flex-wrap items-end justify-between gap-3 border-b border-paper-line pb-3">
-      <div>
-        <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-500">
-          U.S. Department of Transportation
+    <div className={grow ? "min-w-0 flex-1" : "min-w-0"}>
+      <div className="min-h-[20px] truncate border-b border-paper-line px-1.5 pb-0.5 font-mono text-[12px] text-ink">
+        {value || " "}
+      </div>
+      {label ? (
+        <div className="mt-0.5 font-mono text-[8px] uppercase leading-tight tracking-wide text-ink-500">
+          {label}
         </div>
-        <div className="font-display text-lg font-800 leading-tight text-ink">
-          Driver&rsquo;s Daily Log
+      ) : null}
+    </div>
+  );
+}
+
+// Faithful reproduction of the DOT "Driver's Daily Log" header block.
+// Trip-planner fields are auto-filled; carrier/equipment fields are left as
+// the blank ruled lines they are on the real form.
+function SheetForm({ sheet, index }) {
+  const [y, m, d] = sheet.date.split("-");
+  const { from, to } = dayEndpoints(sheet);
+  const miles = sheet.total_miles.toLocaleString();
+
+  return (
+    <div className="mb-3 border-b border-paper-line pb-3">
+      {/* Title + date + filing note */}
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-500">
+            U.S. Department of Transportation
+          </div>
+          <div className="font-display text-lg font-800 leading-tight text-ink">
+            Driver&rsquo;s Daily Log
+          </div>
+          <div className="font-mono text-[10px] uppercase tracking-wider text-ink-500">
+            Projected &middot; generated from HOS rules &middot; Sheet {index + 1}
+          </div>
         </div>
-        <div className="font-mono text-[10px] uppercase tracking-wider text-ink-500">
-          Projected log &middot; generated from HOS rules &middot; Sheet {index + 1}
+        <div className="flex items-end gap-1.5">
+          <FormCell label="Month" value={String(Number(m))} />
+          <span className="pb-3 text-ink-500">/</span>
+          <FormCell label="Day" value={String(Number(d))} />
+          <span className="pb-3 text-ink-500">/</span>
+          <FormCell label="Year" value={y} />
+        </div>
+        <div className="max-w-[150px] text-right font-mono text-[8px] leading-tight text-ink-500">
+          Original &mdash; file at home terminal. Duplicate &mdash; driver retains 8 days.
         </div>
       </div>
-      <div className="flex gap-5">
-        <HeaderField label="Date" value={dateLabel} />
-        <HeaderField label="Total miles" value={sheet.total_miles.toLocaleString()} />
+
+      {/* From / To */}
+      <div className="mb-3 flex flex-wrap gap-4">
+        <div className="flex flex-1 items-end gap-2">
+          <span className="pb-0.5 font-mono text-[9px] uppercase tracking-wide text-ink-500">From</span>
+          <FormCell value={from} grow />
+        </div>
+        <div className="flex flex-1 items-end gap-2">
+          <span className="pb-0.5 font-mono text-[9px] uppercase tracking-wide text-ink-500">To</span>
+          <FormCell value={to} grow />
+        </div>
+      </div>
+
+      {/* Mileage + carrier */}
+      <div className="mb-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <FormCell label="Total Miles Driving Today" value={miles} />
+        <FormCell label="Total Mileage Today" value={miles} />
+        <FormCell label="Name of Carrier or Carriers" value="" />
+      </div>
+
+      {/* Equipment + addresses */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <FormCell label="Truck/Tractor & Trailer Nos. or Plate(s)/State" value="" />
+        <FormCell label="Main Office Address" value="" />
+        <FormCell label="Home Terminal Address" value="" />
+      </div>
+    </div>
+  );
+}
+
+// Bottom-of-form shipping/documents block.
+function SheetDocuments({ sheet }) {
+  const { from, to } = dayEndpoints(sheet);
+  return (
+    <div className="mt-3 border-t border-paper-line pt-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <FormCell label="DVL or Manifest No." value="" />
+        <FormCell label="Shipper & Commodity" value="" />
+      </div>
+      <div className="mt-2 font-mono text-[8px] uppercase tracking-wide text-ink-500">
+        Shipping documents{from && to ? ` · load ${from} → ${to}` : ""} &middot;
+        carrier, equipment &amp; shipping fields completed by driver
       </div>
     </div>
   );
@@ -262,7 +346,7 @@ export default function LogSheet({ sheet, index }) {
   return (
     <>
       <div className="log-sheet rounded-lg border border-paper-edge bg-paper p-4 text-ink shadow-sm sm:p-5">
-        <SheetHeader sheet={sheet} index={index} dateLabel={dateLabel} />
+        <SheetForm sheet={sheet} index={index} />
 
         <button
           type="button"
@@ -280,6 +364,8 @@ export default function LogSheet({ sheet, index }) {
             <ZoomIcon /> Enlarge
           </span>
         </button>
+
+        <SheetDocuments sheet={sheet} />
       </div>
 
       {open && (
@@ -385,8 +471,9 @@ function LogSheetModal({ sheet, index, dateLabel, onClose }) {
           style={{ width: `${Math.round(zoom * 100)}%`, maxWidth: "none" }}
           onClick={(e) => e.stopPropagation()}
         >
-          <SheetHeader sheet={sheet} index={index} dateLabel={dateLabel} />
+          <SheetForm sheet={sheet} index={index} />
           <LogGrid sheet={sheet} dateLabel={dateLabel} />
+          <SheetDocuments sheet={sheet} />
         </div>
       </div>
     </div>
@@ -418,16 +505,5 @@ function ZoomIcon() {
       <line x1="7" y1="4.5" x2="7" y2="9.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
       <line x1="4.5" y1="7" x2="9.5" y2="7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
-  );
-}
-
-function HeaderField({ label, value }) {
-  return (
-    <div className="text-right">
-      <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-ink-500">
-        {label}
-      </div>
-      <div className="font-mono text-sm font-700 text-ink">{value}</div>
-    </div>
   );
 }
