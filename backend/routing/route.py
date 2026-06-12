@@ -8,6 +8,7 @@ and rests at the right point along the polyline.
 
 import math
 import os
+import time
 from functools import lru_cache
 
 import requests
@@ -87,12 +88,20 @@ def fetch_route(coords_key):
 
 def _fetch_osrm(coords):
     path = ";".join(f"{lng},{lat}" for lat, lng in coords)
-    resp = requests.get(
-        OSRM_URL + path,
-        params={"overview": "full", "geometries": "geojson", "steps": "false"},
-        timeout=TIMEOUT,
-    )
-    resp.raise_for_status()
+    # The public demo server drops the occasional request; retry once.
+    for attempt in range(2):
+        try:
+            resp = requests.get(
+                OSRM_URL + path,
+                params={"overview": "full", "geometries": "geojson", "steps": "false"},
+                timeout=TIMEOUT,
+            )
+            resp.raise_for_status()
+            break
+        except requests.RequestException:
+            if attempt == 1:
+                raise
+            time.sleep(1.5)
     data = resp.json()
     if data.get("code") != "Ok" or not data.get("routes"):
         raise RouteError("No drivable route found between those locations.")

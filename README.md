@@ -80,11 +80,14 @@ backend at all.
 
 ## Deploy
 
-**Backend → Railway:** point the service at `backend/` (Procfile +
-`railway.json` included). Set env vars from `backend/.env.example`:
-`SECRET_KEY`, `DEBUG=false`, `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`
-(the Vercel URL). Optional `ORS_API_KEY` switches routing to
-OpenRouteService's truck profile; otherwise OSRM is used.
+**Backend → Render (free):** the repo includes `render.yaml` — create a new
+Blueprint on Render pointing at this repo and set `CORS_ALLOWED_ORIGINS` to
+the Vercel URL when prompted. Free instances spin down when idle; keep the
+`/` health endpoint pinged (e.g. UptimeRobot, free) so graders never hit a
+cold start. Railway also works (`backend/Procfile` + `railway.json`
+included) if you have credits. Env vars are listed in `backend/.env.example`;
+optional `ORS_API_KEY` switches routing to OpenRouteService's truck profile,
+otherwise OSRM is used.
 
 **Frontend → Vercel:** import the repo root (Vite preset). Set
 `VITE_API_BASE` to the Railway URL.

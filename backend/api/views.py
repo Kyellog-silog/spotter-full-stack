@@ -75,15 +75,16 @@ def plan_trip_view(request):
     ]
 
     sim, summary = plan_trip(legs, data["current_cycle_used"])
-    sheets = build_log_sheets(sim.segments)
 
-    # Resolve each stop to a coordinate along the polyline plus a label.
+    # Resolve each stop to a coordinate along the polyline plus a place name.
     stops_out = []
+    place_by_time = {}
     for stop in sim.stops:
         point = point_at_miles(route["geometry"], route["cum_miles"], stop.trip_miles)
         place = stop.label or reverse_geocode(round(point[0], 3), round(point[1], 3))
         if not place:
             place = f"mile {round(stop.trip_miles)} en route"
+        place_by_time[stop.time] = place
         stops_out.append(
             {
                 "type": stop.type,
@@ -93,6 +94,14 @@ def plan_trip_view(request):
                 "time": stop.time.isoformat(timespec="minutes"),
             }
         )
+
+    # Backfill resolved places into the pause/fuel segments that started at
+    # those moments, so log-sheet remarks name where each change happened.
+    for seg in sim.segments:
+        if not seg.location and seg.start in place_by_time:
+            seg.location = place_by_time[seg.start]
+
+    sheets = build_log_sheets(sim.segments)
 
     return Response(
         {

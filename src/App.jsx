@@ -3,6 +3,7 @@ import { planTrip } from "./api/client.js";
 import TripForm from "./components/TripForm.jsx";
 import RouteMap from "./components/RouteMap.jsx";
 import TripSummary from "./components/TripSummary.jsx";
+import Itinerary from "./components/Itinerary.jsx";
 import LogSheet from "./components/LogSheet.jsx";
 import { STOP_META } from "./lib/status.js";
 
@@ -83,6 +84,7 @@ function Results({ trip }) {
       <div className="no-print">
         <SectionTitle>Route</SectionTitle>
         <RouteMap trip={trip} />
+        <Itinerary trip={trip} />
       </div>
 
       <div className="print-area">

@@ -69,16 +69,20 @@ class Simulator:
 
     # ---- inserted rest periods ----------------------------------------
 
+    # Inserted pauses get no location here: the API layer reverse-geocodes
+    # the point on the route where they happen and backfills it, so the
+    # log-sheet remarks name the actual place of each change of duty status.
+
     def take_break(self):
         """30 consecutive non-driving minutes; resets clock 3 only."""
         self._stop("break_30m")
-        self._add(OFF_DUTY, C.BREAK_DURATION, self.last_location, "30-min break")
+        self._add(OFF_DUTY, C.BREAK_DURATION, "", "30-min break")
         self.driving_since_break = 0.0
 
     def take_daily_rest(self):
         """10 consecutive hours off; resets clocks 1-3 but not the cycle."""
         self._stop("rest_10h")
-        self._add(SLEEPER, C.DAILY_RESET, self.last_location, "10-hour rest")
+        self._add(SLEEPER, C.DAILY_RESET, "", "10-hour rest")
         self.driving_since_rest = 0.0
         self.driving_since_break = 0.0
         self.window_start = None
@@ -86,7 +90,7 @@ class Simulator:
     def take_restart(self):
         """34 consecutive hours off; resets the 70-hour cycle and clocks 1-3."""
         self._stop("restart_34h")
-        self._add(OFF_DUTY, C.CYCLE_RESTART, self.last_location, "34-hour restart")
+        self._add(OFF_DUTY, C.CYCLE_RESTART, "", "34-hour restart")
         self.cycle_used = 0.0
         self.driving_since_rest = 0.0
         self.driving_since_break = 0.0

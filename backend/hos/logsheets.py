@@ -59,11 +59,11 @@ def build_log_sheets(segments):
             else:
                 day_segments.append(entry)
 
-            # Remarks: note the place and time at each change of duty status
-            if seg.start >= day_start and (seg.location or seg.note):
-                label = seg.location or seg.note
-                if not remarks or remarks[-1]["location"] != label:
-                    remarks.append({"time": _fmt(start, day_start), "location": label})
+            # Remarks: name the place at each change of duty status. Segments
+            # without a resolved place (continuation driving chunks) are skipped.
+            if seg.start >= day_start and seg.location:
+                if not remarks or remarks[-1]["location"] != seg.location:
+                    remarks.append({"time": _fmt(start, day_start), "location": seg.location})
 
         sheets.append(
             {
