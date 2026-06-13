@@ -11,12 +11,23 @@ export default function TripSummary({ summary }) {
   const cycleHot = summary.cycle_used_end >= 60;
 
   return (
-    <div className="card p-4">
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg bg-ink-700 sm:grid-cols-3 lg:grid-cols-5">
-        {STATS.map((s) => (
-          <div key={s.key} className="bg-ink-800 p-3">
-            <div className="field-label">{s.label}</div>
-            <div className="mt-1 font-mono text-2xl font-700 text-paper">
+    <div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {/* lead stat in navy, like the design */}
+        <div className="flex flex-col justify-between rounded-xl bg-navy p-4 text-surface shadow-card">
+          <div className="font-mono text-[10px] uppercase tracking-wider text-navy-200">
+            {STATS[0].label}
+          </div>
+          <div className="mt-2 font-mono text-2xl font-700 leading-none">
+            {STATS[0].fmt(summary[STATS[0].key])}
+          </div>
+        </div>
+        {STATS.slice(1).map((s) => (
+          <div key={s.key} className="card p-4">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-fg-faint">
+              {s.label}
+            </div>
+            <div className="mt-2 font-mono text-2xl font-700 leading-none text-fg">
               {s.fmt(summary[s.key])}
             </div>
           </div>
@@ -24,18 +35,18 @@ export default function TripSummary({ summary }) {
       </div>
 
       {/* 70-hour cycle meter */}
-      <div className="mt-3.5">
-        <div className="mb-1.5 flex items-center justify-between font-mono text-xs text-ink-500">
+      <div className="card mt-3 p-4">
+        <div className="mb-1.5 flex items-center justify-between font-mono text-xs text-fg-muted">
           <span>
             Cycle used: {summary.cycle_used_start}h
-            <span className="text-signal"> &rarr; </span>
-            <span className="text-paper">{summary.cycle_used_end}h</span> / 70h
+            <span className="text-amber-dark"> &rarr; </span>
+            <span className="font-700 text-navy">{summary.cycle_used_end}h</span> / 70h
           </span>
           <span>Trip span: {summary.total_duration_hours}h</span>
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-ink-700">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-line">
           <div
-            className={`h-full rounded-full transition-all ${cycleHot ? "bg-signal" : "bg-sky"}`}
+            className={`h-full rounded-full transition-all ${cycleHot ? "bg-amber" : "bg-good"}`}
             style={{ width: `${cyclePct}%` }}
           />
         </div>

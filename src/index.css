@@ -10,75 +10,68 @@
     text-rendering: optimizeLegibility;
   }
   body {
-    @apply bg-ink text-paper font-body;
+    @apply bg-canvas text-fg font-body;
   }
-  /* Custom scrollbar for the dark chrome */
+  /* Custom scrollbar for the light chrome */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #32445a transparent;
+    scrollbar-color: #c4ccd3 transparent;
   }
   *::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
   *::-webkit-scrollbar-thumb {
-    background: #32445a;
+    background: #c4ccd3;
     border-radius: 999px;
     border: 2px solid transparent;
     background-clip: content-box;
   }
   *::-webkit-scrollbar-thumb:hover {
-    background: #46597280;
+    background: #aab4be;
     background-clip: content-box;
   }
 }
 
 @layer components {
-  /* App chrome: a faint amber aurora at the top plus a subtle dot grid,
-     like a worn dispatch desk under a sodium lamp. */
+  /* App canvas: a faint navy dot grid on the cool light background. */
   .chrome-grain {
-    background-color: theme(colors.ink.DEFAULT);
+    background-color: theme(colors.canvas);
     background-image: radial-gradient(
-        ellipse 90% 55% at 50% -15%,
-        rgba(245, 165, 36, 0.07),
-        transparent 60%
-      ),
-      radial-gradient(
-        ellipse 70% 50% at 100% 0%,
-        rgba(56, 189, 248, 0.05),
-        transparent 55%
-      ),
-      radial-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 18px 18px;
-    background-attachment: fixed, fixed, fixed;
+      circle at 1px 1px,
+      rgba(15, 39, 71, 0.06) 1px,
+      transparent 0
+    );
+    background-size: 22px 22px;
+    background-attachment: fixed;
   }
 
   .field-label {
-    @apply font-mono text-[11px] uppercase tracking-[0.16em] text-ink-500;
+    @apply font-mono text-[11px] uppercase tracking-[0.14em] text-fg-faint;
   }
 
   /* Card surface used across the chrome */
   .card {
-    @apply rounded-xl border border-ink-700 bg-ink-800 shadow-card;
+    @apply rounded-xl border border-line bg-surface shadow-card;
   }
 
   .input {
-    @apply w-full rounded-lg border border-ink-600 bg-ink-900/70 px-3 py-2.5
-           font-body text-paper placeholder:text-ink-500 transition
-           focus:border-signal focus:outline-none focus:ring-2 focus:ring-signal/30;
+    @apply w-full rounded-lg border border-line-strong bg-surface px-3 py-2.5
+           font-body text-fg placeholder:text-fg-faint transition
+           focus:border-amber focus:outline-none focus:ring-2 focus:ring-amber/20;
   }
 
   /* Primary action */
   .btn-signal {
-    @apply rounded-lg bg-signal px-4 py-2.5 font-display text-sm font-700
-           uppercase tracking-wide text-ink transition
-           hover:bg-signal-bright hover:shadow-glow
+    @apply rounded-lg bg-amber px-4 py-2.5 font-display text-sm font-700
+           uppercase tracking-wide text-navy transition
+           hover:bg-amber-dark hover:shadow-glow
            disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:shadow-none;
   }
 
   /* Shimmering skeleton block */
   .skeleton {
-    @apply relative overflow-hidden rounded-md bg-ink-700/70;
+    @apply relative overflow-hidden rounded-md bg-line/80;
   }
   .skeleton::after {
     content: "";
@@ -86,15 +79,15 @@
     background-image: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.65),
       transparent
     );
   }
 }
 
-/* Leaflet tiles read a touch dark by default on a dark page; keep them honest */
+/* Leaflet */
 .leaflet-container {
-  background: #0e1722;
+  background: #e9eef4;
   font-family: "Inter", system-ui, sans-serif;
 }
 .leaflet-popup-content-wrapper,

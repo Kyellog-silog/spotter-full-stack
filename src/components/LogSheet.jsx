@@ -72,7 +72,7 @@ function LogGrid({ sheet, dateLabel }) {
           textAnchor="middle"
           fontSize="9"
           fontFamily="JetBrains Mono, monospace"
-          fill="#5A5240"
+          fill="#94a0ab"
         >
           {hourLabel(h)}
         </text>
@@ -86,9 +86,27 @@ function LogGrid({ sheet, dateLabel }) {
           y={PAD_T + i * ROW_H}
           width={GRID_W}
           height={ROW_H}
-          fill={i % 2 === 0 ? "#FBF8F0" : "#F6F1E4"}
+          fill={i % 2 === 0 ? "#ffffff" : "#f7f9fb"}
         />
       ))}
+
+      {/* Amber highlight under driving segments */}
+      {sheet.segments
+        .filter((s) => s.status === "driving")
+        .map((s, i) => {
+          const x0 = minsToX(hhmmToMinutes(s.start));
+          const x1 = minsToX(hhmmToMinutes(s.end));
+          return (
+            <rect
+              key={`drv-${i}`}
+              x={x0}
+              y={rowTop("driving") + 1}
+              width={x1 - x0}
+              height={ROW_H - 2}
+              fill="rgba(245,158,11,0.12)"
+            />
+          );
+        })}
 
       {/* Quarter-hour ticks: rise up from the bottom line of each row,
           like the real DOT form (the 30-min center tick is the tallest) */}
@@ -105,8 +123,8 @@ function LogGrid({ sheet, dateLabel }) {
                 y1={bottom - len}
                 x2={x}
                 y2={bottom}
-                stroke="#2C6E9B"
-                strokeOpacity="0.35"
+                stroke="#c4ccd3"
+                strokeOpacity="0.9"
                 strokeWidth="0.5"
               />
             );
@@ -122,8 +140,7 @@ function LogGrid({ sheet, dateLabel }) {
           y1={PAD_T}
           x2={minsToX(h * 60)}
           y2={PAD_T + GRID_H}
-          stroke="#2C6E9B"
-          strokeOpacity={h % 6 === 0 ? 0.7 : 0.45}
+          stroke={h % 6 === 0 ? "#aab4be" : "#c4ccd3"}
           strokeWidth={h % 6 === 0 ? 1 : 0.6}
         />
       ))}
@@ -136,8 +153,7 @@ function LogGrid({ sheet, dateLabel }) {
           y1={PAD_T + i * ROW_H}
           x2={PAD_L + GRID_W}
           y2={PAD_T + i * ROW_H}
-          stroke="#2C6E9B"
-          strokeOpacity="0.7"
+          stroke="#aab4be"
           strokeWidth="1"
         />
       ))}
@@ -160,7 +176,7 @@ function LogGrid({ sheet, dateLabel }) {
               y={rowMid(status) + 3}
               fontSize="9.5"
               fontFamily="Inter, sans-serif"
-              fill="#2A3342"
+              fill="#3a444d"
             >
               {meta.label}
             </text>
@@ -170,7 +186,7 @@ function LogGrid({ sheet, dateLabel }) {
               fontSize="13"
               fontWeight="700"
               fontFamily="JetBrains Mono, monospace"
-              fill="#16202E"
+              fill={status === "driving" ? "#b45309" : "#11181c"}
             >
               {formatHours(sheet.totals[status])}
             </text>
@@ -182,7 +198,7 @@ function LogGrid({ sheet, dateLabel }) {
       <polyline
         points={buildDutyLine(sheet.segments)}
         fill="none"
-        stroke="#16202E"
+        stroke="#0f2747"
         strokeWidth="2.2"
         strokeLinejoin="round"
         strokeLinecap="round"
@@ -195,7 +211,7 @@ function LogGrid({ sheet, dateLabel }) {
         fontSize="12"
         fontWeight="700"
         fontFamily="JetBrains Mono, monospace"
-        fill="#B47F10"
+        fill="#b45309"
       >
         ={formatHours(totalAll)}
       </text>
@@ -206,7 +222,7 @@ function LogGrid({ sheet, dateLabel }) {
         y={PAD_T + GRID_H + 20}
         fontSize="9"
         fontFamily="JetBrains Mono, monospace"
-        fill="#5A5240"
+        fill="#94a0ab"
         letterSpacing="1"
       >
         REMARKS
@@ -216,13 +232,13 @@ function LogGrid({ sheet, dateLabel }) {
         const yTop = PAD_T + GRID_H;
         return (
           <g key={`rmk-${i}`}>
-            <line x1={x} y1={yTop} x2={x} y2={yTop + 12} stroke="#16202E" strokeWidth="1" />
+            <line x1={x} y1={yTop} x2={x} y2={yTop + 12} stroke="#0f2747" strokeWidth="1" />
             <text
               x={x}
               y={yTop + 16}
               fontSize="8.5"
               fontFamily="Inter, sans-serif"
-              fill="#2A3342"
+              fill="#5b6770"
               transform={`rotate(58 ${x} ${yTop + 16})`}
             >
               {r.location} &middot; {r.time}
@@ -246,11 +262,11 @@ function dayEndpoints(sheet) {
 function FormCell({ label, value, grow }) {
   return (
     <div className={grow ? "min-w-0 flex-1" : "min-w-0"}>
-      <div className="min-h-[20px] truncate border-b border-paper-line px-1.5 pb-0.5 font-mono text-[12px] text-ink">
+      <div className="min-h-[20px] truncate border-b border-line-strong px-1.5 pb-0.5 font-mono text-[12px] text-fg">
         {value || " "}
       </div>
       {label ? (
-        <div className="mt-0.5 font-mono text-[8px] uppercase leading-tight tracking-wide text-ink-500">
+        <div className="mt-0.5 font-mono text-[8px] uppercase leading-tight tracking-wide text-fg-faint">
           {label}
         </div>
       ) : null}
@@ -267,28 +283,28 @@ function SheetForm({ sheet, index }) {
   const miles = sheet.total_miles.toLocaleString();
 
   return (
-    <div className="mb-3 border-b border-paper-line pb-3">
+    <div className="mb-3 border-b border-line pb-3">
       {/* Title + date + filing note */}
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-500">
+          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-fg-faint">
             U.S. Department of Transportation
           </div>
-          <div className="font-display text-lg font-800 leading-tight text-ink">
+          <div className="font-display text-lg font-800 leading-tight text-navy">
             Driver&rsquo;s Daily Log
           </div>
-          <div className="font-mono text-[10px] uppercase tracking-wider text-ink-500">
+          <div className="font-mono text-[10px] uppercase tracking-wider text-fg-muted">
             Projected &middot; generated from HOS rules &middot; Sheet {index + 1}
           </div>
         </div>
         <div className="flex items-end gap-1.5">
           <FormCell label="Month" value={String(Number(m))} />
-          <span className="pb-3 text-ink-500">/</span>
+          <span className="pb-3 text-fg-faint">/</span>
           <FormCell label="Day" value={String(Number(d))} />
-          <span className="pb-3 text-ink-500">/</span>
+          <span className="pb-3 text-fg-faint">/</span>
           <FormCell label="Year" value={y} />
         </div>
-        <div className="max-w-[150px] text-right font-mono text-[8px] leading-tight text-ink-500">
+        <div className="max-w-[150px] text-right font-mono text-[8px] leading-tight text-fg-faint">
           Original &mdash; file at home terminal. Duplicate &mdash; driver retains 8 days.
         </div>
       </div>
@@ -296,11 +312,11 @@ function SheetForm({ sheet, index }) {
       {/* From / To */}
       <div className="mb-3 flex flex-wrap gap-4">
         <div className="flex flex-1 items-end gap-2">
-          <span className="pb-0.5 font-mono text-[9px] uppercase tracking-wide text-ink-500">From</span>
+          <span className="pb-0.5 font-mono text-[9px] uppercase tracking-wide text-fg-muted">From</span>
           <FormCell value={from} grow />
         </div>
         <div className="flex flex-1 items-end gap-2">
-          <span className="pb-0.5 font-mono text-[9px] uppercase tracking-wide text-ink-500">To</span>
+          <span className="pb-0.5 font-mono text-[9px] uppercase tracking-wide text-fg-muted">To</span>
           <FormCell value={to} grow />
         </div>
       </div>
@@ -326,12 +342,12 @@ function SheetForm({ sheet, index }) {
 function SheetDocuments({ sheet }) {
   const { from, to } = dayEndpoints(sheet);
   return (
-    <div className="mt-3 border-t border-paper-line pt-3">
+    <div className="mt-3 border-t border-line pt-3">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <FormCell label="DVL or Manifest No." value="" />
         <FormCell label="Shipper & Commodity" value="" />
       </div>
-      <div className="mt-2 font-mono text-[8px] uppercase tracking-wide text-ink-500">
+      <div className="mt-2 font-mono text-[8px] uppercase tracking-wide text-fg-faint">
         Shipping documents{from && to ? ` · load ${from} → ${to}` : ""} &middot;
         carrier, equipment &amp; shipping fields completed by driver
       </div>
@@ -345,7 +361,7 @@ export default function LogSheet({ sheet, index }) {
 
   return (
     <>
-      <div className="log-sheet rounded-lg border border-paper-edge bg-paper p-4 text-ink shadow-sm sm:p-5">
+      <div className="log-sheet rounded-xl border border-line bg-surface p-4 text-fg shadow-card sm:p-5">
         <SheetForm sheet={sheet} index={index} />
 
         <button
@@ -353,13 +369,13 @@ export default function LogSheet({ sheet, index }) {
           onClick={() => setOpen(true)}
           title="Click to enlarge"
           className="group relative block w-full cursor-zoom-in rounded focus:outline-none
-                     focus-visible:ring-2 focus-visible:ring-signal"
+                     focus-visible:ring-2 focus-visible:ring-amber"
         >
           <LogGrid sheet={sheet} dateLabel={dateLabel} />
           <span
             className="no-print pointer-events-none absolute right-1 top-1 flex items-center gap-1
-                       rounded bg-ink/80 px-2 py-1 font-mono text-[10px] uppercase tracking-wider
-                       text-paper opacity-0 transition group-hover:opacity-100"
+                       rounded bg-navy/85 px-2 py-1 font-mono text-[10px] uppercase tracking-wider
+                       text-surface opacity-0 transition group-hover:opacity-100"
           >
             <ZoomIcon /> Enlarge
           </span>
@@ -412,7 +428,7 @@ function LogSheetModal({ sheet, index, dateLabel, onClose }) {
 
   return (
     <div
-      className="no-print fixed inset-0 z-50 flex flex-col bg-ink/80 backdrop-blur-sm"
+      className="no-print fixed inset-0 z-50 flex flex-col bg-navy/70 backdrop-blur-sm"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -420,14 +436,14 @@ function LogSheetModal({ sheet, index, dateLabel, onClose }) {
     >
       {/* Toolbar */}
       <div
-        className="flex items-center justify-between gap-4 border-b border-ink-700 bg-ink-800 px-4 py-2.5"
+        className="flex items-center justify-between gap-4 border-b border-line bg-surface px-4 py-2.5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="min-w-0">
-          <div className="truncate font-display text-sm font-700 text-paper">
+          <div className="truncate font-display text-sm font-700 text-navy">
             Driver&rsquo;s Daily Log &middot; {dateLabel}
           </div>
-          <div className="font-mono text-[11px] text-ink-500">
+          <div className="font-mono text-[11px] text-fg-muted">
             Sheet {index + 1} &middot; scroll or use &minus;/+ to zoom
           </div>
         </div>
@@ -439,7 +455,7 @@ function LogSheetModal({ sheet, index, dateLabel, onClose }) {
           >
             &minus;
           </ZoomButton>
-          <span className="w-12 text-center font-mono text-xs text-paper">
+          <span className="w-12 text-center font-mono text-xs text-fg">
             {Math.round(zoom * 100)}%
           </span>
           <ZoomButton
@@ -456,8 +472,8 @@ function LogSheetModal({ sheet, index, dateLabel, onClose }) {
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="ml-1 rounded-md border border-ink-600 px-3 py-1.5 font-mono text-xs
-                       uppercase tracking-wider text-ink-500 transition hover:text-paper"
+            className="ml-1 rounded-md border border-line-strong px-3 py-1.5 font-mono text-xs
+                       uppercase tracking-wider text-fg-muted transition hover:border-navy hover:text-navy"
           >
             Close &times;
           </button>
@@ -467,7 +483,7 @@ function LogSheetModal({ sheet, index, dateLabel, onClose }) {
       {/* Scrollable, zoomable canvas */}
       <div className="flex-1 overflow-auto p-4 sm:p-8" onWheel={onWheel} onClick={onClose}>
         <div
-          className="mx-auto rounded-lg border border-paper-edge bg-paper p-5 shadow-xl"
+          className="mx-auto rounded-xl border border-line bg-surface p-5 shadow-lift"
           style={{ width: `${Math.round(zoom * 100)}%`, maxWidth: "none" }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -488,9 +504,9 @@ function ZoomButton({ children, label, onClick, disabled }) {
       disabled={disabled}
       aria-label={label}
       title={label}
-      className="flex h-7 w-7 items-center justify-center rounded-md border border-ink-600
-                 font-mono text-base leading-none text-paper transition hover:border-signal
-                 hover:text-signal disabled:cursor-not-allowed disabled:opacity-40"
+      className="flex h-7 w-7 items-center justify-center rounded-md border border-line-strong
+                 font-mono text-base leading-none text-fg transition hover:border-navy
+                 hover:text-navy disabled:cursor-not-allowed disabled:opacity-40"
     >
       {children}
     </button>

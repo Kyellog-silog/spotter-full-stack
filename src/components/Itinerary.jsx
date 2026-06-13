@@ -23,13 +23,13 @@ export default function Itinerary({ trip }) {
         {legs.map((leg, i) => (
           <li
             key={i}
-            className="flex flex-wrap items-baseline gap-x-2 font-mono text-xs text-paper"
+            className="flex flex-wrap items-baseline gap-x-2 font-mono text-xs text-fg-soft"
           >
-            <span className="text-ink-500">{i + 1}.</span>
+            <span className="text-fg-faint">{i + 1}.</span>
             <span>{leg.from}</span>
-            <span className="text-signal">&rarr;</span>
+            <span className="text-amber-dark">&rarr;</span>
             <span>{leg.to}</span>
-            <span className="ml-auto text-ink-500">
+            <span className="ml-auto text-fg-muted">
               {Math.round(leg.miles).toLocaleString()} mi &middot; {leg.drive_hours} h
             </span>
           </li>
@@ -44,13 +44,13 @@ export default function Itinerary({ trip }) {
           return (
             <li key={i} className="flex items-center gap-2.5">
               <span
-                className="inline-block h-2.5 w-2.5 flex-none rounded-full border border-ink"
+                className="inline-block h-2.5 w-2.5 flex-none rounded-full ring-2 ring-surface"
                 style={{ background: meta.color }}
               />
-              <span className="min-w-0 flex-1 truncate font-body text-sm text-paper">
+              <span className="min-w-0 flex-1 truncate font-body text-sm text-fg">
                 {s.label}
               </span>
-              <span className="flex-none font-mono text-[11px] text-ink-500">
+              <span className="flex-none font-mono text-[11px] text-fg-muted">
                 {formatTime(s.time)}
               </span>
             </li>

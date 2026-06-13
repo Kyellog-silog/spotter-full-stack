@@ -4,51 +4,59 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Diesel navy chrome — deeper and more layered than before so cards
-        // lift off the page. Page = ink, surfaces = ink-800, raised = ink-700.
-        ink: {
-          DEFAULT: "#0E1622", // page background
-          900: "#0A111B", // deepest wells / inputs
-          800: "#16212F", // cards / surfaces
-          700: "#22303F", // raised surfaces / dividers
-          600: "#32445A", // strong borders / input outline
-          500: "#7E8DA3", // muted text
+        // Wayline light theme: navy + amber on a cool light canvas.
+        canvas: "#eef1f5", // page background
+        surface: "#ffffff", // cards
+        panel: "#f7f9fb", // subtle alt surface (alt rows, skeleton)
+        line: {
+          DEFAULT: "#e3e7ec", // borders / dividers
+          strong: "#d9dee4", // input outlines
         },
-        // DOT signage amber — refined, a touch warmer and brighter
-        signal: {
-          DEFAULT: "#F5A524",
-          bright: "#FFB840",
-          dim: "#B97D17",
+        // brand navy
+        navy: {
+          DEFAULT: "#0f2747",
+          600: "#16335a",
+          400: "#284a72",
+          200: "#cdd9e6",
         },
-        // Secondary sky accent for links, secondary stats, info states
-        sky: {
-          DEFAULT: "#38BDF8",
-          bright: "#7DD3FC",
-          dim: "#0EA5E9",
+        // signage amber (CTAs, primary accent)
+        amber: {
+          DEFAULT: "#f59e0b",
+          dark: "#e8920a",
+          soft: "#fff8ee",
         },
-        // status / feedback
-        good: { DEFAULT: "#34D399", dim: "#10B981" },
-        // log paper (unchanged — the sheets keep their authentic look)
-        paper: {
-          DEFAULT: "#FBF8F0",
-          line: "#D8CFB8",
-          edge: "#E7E0CC",
+        // text scale (dark on light)
+        fg: {
+          DEFAULT: "#11181c",
+          soft: "#3a444d",
+          muted: "#5b6770",
+          faint: "#94a0ab",
         },
-        // duty status accents (map + legend, not the grid line)
+        good: { DEFAULT: "#15803d", bg: "#ecfdf3", border: "#bbf0cd" },
+        // duty-status row accents (log grid + legend)
         duty: {
-          off: "#6B7A8F",
-          sleeper: "#3B5BA5",
-          driving: "#F5A524",
-          onduty: "#B5651D",
+          off: "#64748b",
+          sleeper: "#7c5cff",
+          driving: "#d97706",
+          onduty: "#0d9488",
         },
-        grid: "#2C6E9B", // log grid blue, matches the real form
+        // map markers / stop events
+        stop: {
+          start: "#0f2747",
+          pickup: "#d97706",
+          dropoff: "#16a34a",
+          fuel: "#0d9488",
+          brk: "#8b5cf6",
+          reset: "#5b6b80",
+          restart: "#e11d48",
+        },
+        gridline: "#c4ccd3", // log grid lines
       },
       fontFamily: {
         display: ["Archivo", "system-ui", "sans-serif"],
         body: ["Inter", "system-ui", "sans-serif"],
         mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
       },
-      // Numeric weight utilities (font-500 … font-800) used throughout the UI.
       fontWeight: {
         400: "400",
         500: "500",
@@ -57,14 +65,12 @@ export default {
         800: "800",
       },
       boxShadow: {
-        card: "0 1px 2px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.02) inset",
-        lift: "0 8px 30px -12px rgba(0,0,0,0.6)",
-        glow: "0 0 0 1px rgba(245,165,36,0.25), 0 8px 30px -10px rgba(245,165,36,0.18)",
+        card: "0 1px 2px rgba(15,39,71,0.06)",
+        lift: "0 12px 28px rgba(15,39,71,0.14)",
+        glow: "0 4px 14px rgba(245,158,11,0.28)",
       },
       keyframes: {
-        shimmer: {
-          "100%": { transform: "translateX(100%)" },
-        },
+        shimmer: { "100%": { transform: "translateX(100%)" } },
         "pulse-soft": {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.45" },

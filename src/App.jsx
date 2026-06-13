@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { planTrip, pingBackend, NEEDS_WARMUP } from "./api/client.js";
 import TripForm from "./components/TripForm.jsx";
 import RouteMap from "./components/RouteMap.jsx";
@@ -57,12 +57,12 @@ export default function App() {
 
       <main className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[340px_1fr] lg:px-6">
         {/* Sidebar: form */}
-        <aside className="no-print lg:sticky lg:top-6 lg:self-start">
+        <aside className="no-print lg:sticky lg:top-20 lg:self-start">
           <div className="card p-5">
-            <h2 className="mb-1 font-display text-sm font-700 uppercase tracking-wide text-paper">
+            <h2 className="mb-1 font-display text-sm font-700 uppercase tracking-wide text-navy">
               Trip details
             </h2>
-            <p className="mb-4 font-mono text-[11px] text-ink-500">
+            <p className="mb-4 font-mono text-[11px] text-fg-muted">
               Property-carrying &middot; 70h / 8 days
             </p>
             <TripForm onSubmit={handleSubmit} loading={status === "loading"} />
@@ -86,16 +86,16 @@ export default function App() {
 
 function Header({ backend }) {
   return (
-    <header className="no-print sticky top-0 z-30 border-b border-ink-700 bg-ink/70 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 lg:px-6">
+    <header className="no-print sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-6">
         <div className="flex items-center gap-3">
           <Logo />
           <div className="flex items-baseline gap-2.5">
-            <span className="font-display text-xl font-800 tracking-tight text-paper">
+            <span className="font-display text-xl font-800 tracking-tight text-navy">
               MILEPOST
             </span>
-            <span className="hidden font-mono text-[11px] uppercase tracking-[0.18em] text-signal sm:inline">
-              HOS Trip Planner
+            <span className="hidden font-mono text-[10px] uppercase tracking-[0.16em] text-amber-dark sm:inline">
+              HOS Planner
             </span>
           </div>
         </div>
@@ -107,7 +107,7 @@ function Header({ backend }) {
 
 function Logo() {
   return (
-    <span className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-signal to-signal-dim text-ink shadow-glow">
+    <span className="grid h-9 w-9 place-items-center rounded-lg bg-amber text-navy shadow-glow">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path
           d="M3 17h2m14 0h2M5 17a2 2 0 1 0 4 0 2 2 0 0 0-4 0Zm10 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0Z"
@@ -128,20 +128,20 @@ function Logo() {
 
 function BackendBadge({ backend }) {
   const map = {
-    ready: { dot: "bg-sky", text: "Demo data", pulse: false },
-    warming: { dot: "bg-signal", text: "Waking server", pulse: true },
+    ready: { dot: "bg-navy", text: "Demo data", pulse: false },
+    warming: { dot: "bg-amber", text: "Waking server", pulse: true },
     online: { dot: "bg-good", text: "Server online", pulse: false },
   };
   const s = map[backend] || map.ready;
   return (
-    <span className="flex items-center gap-2 rounded-full border border-ink-700 bg-ink-800 px-3 py-1.5">
+    <span className="flex items-center gap-2 rounded-full border border-line bg-panel px-3 py-1.5">
       <span className="relative flex h-2 w-2">
         {s.pulse && (
           <span className={`absolute inline-flex h-full w-full animate-ping rounded-full ${s.dot} opacity-60`} />
         )}
         <span className={`relative inline-flex h-2 w-2 rounded-full ${s.dot}`} />
       </span>
-      <span className="font-mono text-[11px] uppercase tracking-wider text-ink-500">
+      <span className="font-mono text-[11px] uppercase tracking-wider text-fg-muted">
         {s.text}
       </span>
     </span>
@@ -154,7 +154,7 @@ function Results({ trip }) {
       <TripSummary summary={trip.summary} />
 
       <div className="no-print">
-        <SectionTitle>Route</SectionTitle>
+        <SectionTitle>Route &amp; stops</SectionTitle>
         <RouteMap trip={trip} />
         <Itinerary trip={trip} />
       </div>
@@ -164,11 +164,11 @@ function Results({ trip }) {
           <SectionTitle>Daily log sheets</SectionTitle>
           <button
             onClick={() => window.print()}
-            className="no-print rounded-lg border border-ink-600 px-3 py-1.5 font-mono
-                       text-xs uppercase tracking-wider text-ink-500 transition
-                       hover:border-signal hover:text-signal"
+            className="no-print rounded-lg border border-line-strong bg-surface px-3 py-1.5 font-mono
+                       text-xs uppercase tracking-wider text-fg-soft transition
+                       hover:border-navy hover:text-navy"
           >
-            Print logs
+            Print / PDF
           </button>
         </div>
         <div className="space-y-4">
@@ -183,8 +183,8 @@ function Results({ trip }) {
 
 function SectionTitle({ children }) {
   return (
-    <h2 className="mb-2.5 flex items-center gap-2 font-display text-xs font-700 uppercase tracking-[0.18em] text-ink-500">
-      <span className="h-3 w-1 rounded-full bg-signal" />
+    <h2 className="mb-2.5 flex items-center gap-2 font-display text-xs font-700 uppercase tracking-[0.16em] text-fg-muted">
+      <span className="h-3 w-1 rounded-full bg-amber" />
       {children}
     </h2>
   );
@@ -204,10 +204,10 @@ function MapLegend() {
         {items.map(([key, label]) => (
           <li key={key} className="flex items-center gap-2.5">
             <span
-              className="inline-block h-3 w-3 rounded-full border border-ink ring-2 ring-ink-900"
+              className="inline-block h-3 w-3 rounded-full ring-2 ring-surface"
               style={{ background: STOP_META[key].color }}
             />
-            <span className="font-mono text-xs text-paper">{label}</span>
+            <span className="font-mono text-xs text-fg-soft">{label}</span>
           </li>
         ))}
       </ul>
@@ -217,17 +217,17 @@ function MapLegend() {
 
 function EmptyState() {
   return (
-    <div className="flex h-full min-h-[440px] flex-col items-center justify-center rounded-xl border border-dashed border-ink-700 bg-ink-800/40 p-8 text-center">
-      <div className="mb-4 grid h-14 w-14 place-items-center rounded-2xl border border-ink-700 bg-ink-800 text-signal">
+    <div className="flex h-full min-h-[440px] flex-col items-center justify-center rounded-xl border border-dashed border-line-strong bg-surface/60 p-8 text-center">
+      <div className="mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-amber-soft text-amber-dark">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
           <circle cx="12" cy="11" r="2.2" stroke="currentColor" strokeWidth="1.7" />
         </svg>
       </div>
-      <div className="font-display text-lg font-700 text-paper">
+      <div className="font-display text-lg font-700 text-navy">
         Enter a trip to plan the route
       </div>
-      <p className="mt-2 max-w-sm font-body text-sm text-ink-500">
+      <p className="mt-2 max-w-sm font-body text-sm text-fg-muted">
         Add the current, pickup, and drop-off locations plus hours already used in
         the 70-hour cycle. You will get a mapped route and a daily log sheet for each
         day of the trip.
@@ -247,13 +247,13 @@ function LoadingState({ backend }) {
   return (
     <div className="space-y-4">
       {cold && (
-        <div className="flex items-start gap-3 rounded-xl border border-signal/30 bg-signal/5 px-4 py-3">
-          <span className="mt-0.5 h-4 w-4 flex-none animate-spin rounded-full border-2 border-signal/30 border-t-signal" />
+        <div className="flex items-start gap-3 rounded-xl border border-amber/40 bg-amber-soft px-4 py-3">
+          <span className="mt-0.5 h-4 w-4 flex-none animate-spin rounded-full border-2 border-amber/30 border-t-amber" />
           <div>
-            <div className="font-display text-sm font-700 text-signal-bright">
+            <div className="font-display text-sm font-700 text-amber-dark">
               Waking the server
             </div>
-            <p className="mt-0.5 font-mono text-[11px] leading-relaxed text-ink-500">
+            <p className="mt-0.5 font-mono text-[11px] leading-relaxed text-fg-muted">
               The backend sleeps when idle on free hosting and can take up to ~50s to
               wake on the first request. The page fills in automatically &mdash; no need
               to resubmit.
@@ -268,12 +268,12 @@ function LoadingState({ backend }) {
 
 function ErrorState({ message }) {
   return (
-    <div className="rounded-xl border border-signal-dim bg-ink-800 p-6">
-      <div className="font-display text-sm font-700 uppercase tracking-wide text-signal-bright">
+    <div className="rounded-xl border border-stop-restart/40 bg-surface p-6 shadow-card">
+      <div className="font-display text-sm font-700 uppercase tracking-wide text-stop-restart">
         Could not plan the trip
       </div>
-      <p className="mt-2 font-mono text-xs text-ink-500">{message}</p>
-      <p className="mt-2 font-body text-sm text-paper">
+      <p className="mt-2 font-mono text-xs text-fg-muted">{message}</p>
+      <p className="mt-2 font-body text-sm text-fg-soft">
         Check the locations and try again. If the server was asleep, a second attempt
         usually goes through.
       </p>
@@ -283,13 +283,13 @@ function ErrorState({ message }) {
 
 function Footer() {
   return (
-    <footer className="no-print border-t border-ink-700/60 px-4 py-6 lg:px-6">
+    <footer className="no-print border-t border-line px-4 py-6 lg:px-6">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2">
-        <span className="font-mono text-[11px] text-ink-500">
+        <span className="font-mono text-[11px] text-fg-faint">
           Milepost &middot; HOS trip planner &amp; ELD log generator
         </span>
-        <span className="font-mono text-[11px] text-ink-500">
-          Routing: OSRM &middot; Geocoding: Nominatim &middot; Tiles: OpenStreetMap
+        <span className="font-mono text-[11px] text-fg-faint">
+          Routing: OSRM &middot; Geocoding: Nominatim + Photon &middot; Tiles: OpenStreetMap
         </span>
       </div>
     </footer>

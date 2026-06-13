@@ -27,24 +27,28 @@ export default function TripForm({ onSubmit, loading }) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <Field
         label="Current location"
+        dot="#0f2747"
         error={errors.current_location}
         {...register("current_location", { required: "Required" })}
         placeholder="City, ST"
       />
       <Field
         label="Pickup location"
+        dot="#d97706"
         error={errors.pickup_location}
         {...register("pickup_location", { required: "Required" })}
         placeholder="City, ST"
       />
       <Field
         label="Drop-off location"
+        dot="#16a34a"
         error={errors.dropoff_location}
         {...register("dropoff_location", { required: "Required" })}
         placeholder="City, ST"
       />
       <Field
         label="Current cycle used (hours)"
+        dot="#5b6b80"
         error={errors.current_cycle_used}
         type="number"
         step="0.25"
@@ -64,9 +68,9 @@ export default function TripForm({ onSubmit, loading }) {
         <button
           type="button"
           onClick={() => reset(EXAMPLE)}
-          className="rounded-lg border border-ink-600 px-3 py-2.5 font-mono text-xs
-                     uppercase tracking-wider text-ink-500 transition
-                     hover:border-signal hover:text-signal"
+          className="rounded-lg border border-line-strong px-3 py-2.5 font-mono text-xs
+                     uppercase tracking-wider text-fg-muted transition
+                     hover:border-navy hover:text-navy"
         >
           Example
         </button>
@@ -75,13 +79,18 @@ export default function TripForm({ onSubmit, loading }) {
   );
 }
 
-const Field = forwardRef(function Field({ label, error, ...rest }, ref) {
+const Field = forwardRef(function Field({ label, error, dot, ...rest }, ref) {
   return (
     <label className="block">
-      <span className="field-label mb-1.5 block">{label}</span>
+      <span className="mb-1.5 flex items-center gap-2 font-mono text-[11px] font-600 uppercase tracking-[0.12em] text-fg-soft">
+        {dot && (
+          <span className="h-2 w-2 rounded-full" style={{ background: dot }} />
+        )}
+        {label}
+      </span>
       <input ref={ref} className="input" {...rest} />
       {error && (
-        <span className="mt-1 block font-mono text-[11px] text-signal-bright">
+        <span className="mt-1 block font-mono text-[11px] text-stop-restart">
           {error.message}
         </span>
       )}
