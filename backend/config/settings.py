@@ -31,7 +31,14 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# Stateless tokenless JSON API: no sessions, cookies, or auth, so there is no
+# CSRF surface (DRF leaves api_view CSRF-exempt without SessionAuthentication).
+X_FRAME_OPTIONS = "DENY"
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "same-origin"
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
@@ -66,4 +73,13 @@ USE_TZ = False  # the engine works in naive home-terminal local time
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 if not DEBUG:
+    # Render (and most PaaS) terminate TLS at the proxy and forward this header.
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    # On by default; set SECURE_SSL_REDIRECT=false if a platform health check
+    # pings over plain HTTP internally and the redirect marks it unhealthy.
+    SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", "true").lower() == "true"
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
