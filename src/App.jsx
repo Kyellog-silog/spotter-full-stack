@@ -194,7 +194,9 @@ function MapLegend() {
   const items = [
     ["pickup", "Start / Pickup"],
     ["fuel", "Fuel stop"],
+    ["break_30m", "30-min break"],
     ["rest_10h", "10-hour reset"],
+    ["restart_34h", "34-hour restart"],
     ["dropoff", "Drop-off"],
   ];
   return (
